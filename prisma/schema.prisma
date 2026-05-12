@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  admin
+  editor
+  viewer
+}
+
+enum ContentType {
+  faq
+  document
+  link
+  structured
+}
+
+enum SourceType {
+  official
+  student_association
+  senior_experience
+  community
+  external
+  unknown
+}
+
+enum Visibility {
+  public
+  department_only
+  admin_only
+}
+
+enum DocumentStatus {
+  draft
+  published
+  archived
+}
+
+model User {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String
+  email     String     @unique
+  role      Role       @default(editor)
+  documents Document[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Document {
+  id          String         @id @default(uuid()) @db.Uuid
+  title       String
+  content     String?
+  contentType ContentType    @map("content_type")
+  category    String
+  subcategory String?
+  sourceType  SourceType     @default(unknown) @map("source_type")
+  sourceName  String?        @map("source_name")
+  sourceUrl   String?        @map("source_url")
+  visibility  Visibility     @default(public)
+  status      DocumentStatus @default(draft)
+  ownerId     String?        @map("owner_id") @db.Uuid
+  owner       User?          @relation(fields: [ownerId], references: [id])
+  validFrom   DateTime?      @map("valid_from") @db.Date
+  validUntil  DateTime?      @map("valid_until") @db.Date
+  version     Int            @default(1)
+  files       File[]
+  tags        DocumentTag[]
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@index([status, visibility])
+  @@index([category, subcategory])
+  @@index([contentType])
+  @@map("documents")
+}
+
+model Tag {
+  id        String        @id @default(uuid()) @db.Uuid
+  name      String        @unique
+  documents DocumentTag[]
+
+  @@map("tags")
+}
+
+model DocumentTag {
+  documentId String   @map("document_id") @db.Uuid
+  tagId      String   @map("tag_id") @db.Uuid
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, tagId])
+  @@map("document_tags")
+}
+
+model File {
+  id         String   @id @default(uuid()) @db.Uuid
+  documentId String   @map("document_id") @db.Uuid
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  fileName   String   @map("file_name")
+  fileType   String   @map("file_type")
+  fileUrl    String   @map("file_url")
+  fileSize   Int      @map("file_size")
+  parsedText String?  @map("parsed_text")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  @@map("files")
+}
