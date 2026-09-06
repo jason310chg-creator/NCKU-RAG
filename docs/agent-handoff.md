@@ -55,7 +55,14 @@ with Git commits.
 - Local PostgreSQL uses host port `5433`.
 - On this Windows PowerShell setup, use `npm.cmd` if `npm` is blocked.
 - Phase 1 API implementation and unit/build checks are complete; real PostgreSQL
-  integration acceptance is blocked by missing Docker in the 2026-09-06 environment.
+  integration acceptance is blocked by the Docker engine in the 2026-09-06
+  Windows VM. Docker Desktop 4.89.0 is installed per user, but reports
+  `hasNoVirtualization: true`; WSL is also absent. Enable nested virtualization
+  on the host and install WSL 2 before retrying. The Docker CLI directory is
+  `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`; open a new terminal
+  if the current process predates its addition to the user PATH.
+- Push the Phase 1 branch only after integration tests pass, then complete code
+  review. Do not begin Phase 2 until Phase 1 acceptance is complete.
 - Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
 - Run `npm run db:generate` after installing dependencies in a fresh checkout.
 - `npm run test:integration` uses only the disposable test DB on localhost `55433`.

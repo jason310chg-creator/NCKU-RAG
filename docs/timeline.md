@@ -17,7 +17,9 @@ environment. That runtime state is not assumed for a new checkout or computer.
 ## Phase 1 - Data Model and API Foundation
 
 Status: implementation complete; PostgreSQL integration acceptance blocked by
-missing Docker. Do not mark the entire phase verified until the DB suite passes.
+the local Docker engine. Docker Desktop is installed, but this Windows VM lacks
+nested virtualization and WSL. Do not mark the entire phase verified until the
+DB suite passes and code review is complete.
 
 - [x] Initial migration exists: `20260512175544_init` (present before this work)
 - [x] Validate schema and generate Prisma client locally
@@ -30,13 +32,16 @@ missing Docker. Do not mark the entire phase verified until the DB suite passes.
 - [x] Add domain, validation, repository-contract, service, singleton and HTTP unit tests
 - [x] Add isolated Compose test service and repeatable real PostgreSQL fixtures
 - [x] Pass test, typecheck, lint and production build
-- [ ] Execute real PostgreSQL integration tests (Docker executable unavailable)
+- [ ] Enable nested virtualization on the VM host and install WSL 2 in Windows
+- [ ] Execute real PostgreSQL integration tests (Docker engine cannot start)
 - [ ] Verify migration application in the isolated PostgreSQL test database
+- [ ] After integration tests pass, push the Phase 1 branch and complete code review
 
 ## Phase 2 - Admin Data Management
 
-Status: pending. Start with authentication and role authorization design and
-tests before exposing administrative data or write operations.
+Status: pending; do not start until Phase 1 acceptance is complete. Start with
+authentication and role authorization design and tests before exposing
+administrative data or write operations.
 
 - [ ] Build admin dashboard layout
 - [ ] Build document list page

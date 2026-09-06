@@ -2,7 +2,8 @@
 
 RAG-ready data management platform for department knowledge. Phase 1 implements
 public read-only document list and detail APIs. Real PostgreSQL integration
-acceptance is pending local Docker availability. Admin management, search and
+acceptance is pending a working local Docker engine (the current Windows VM
+lacks nested virtualization and WSL). Admin management, search and
 RAG export are later phases; chatbot and embeddings are not implemented.
 
 See [API contract and tests](docs/api.md) and [phase status](docs/timeline.md).

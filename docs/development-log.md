@@ -2,6 +2,40 @@
 
 ## 2026-09-06
 
+### Phase 1 acceptance retry - Docker engine blocked
+
+- Confirmed the actual repository root and clean branch
+  `feat/phase-1-api-foundation` at `d77e7b9` before this retry.
+- Found existing Docker Desktop 4.89.0 in
+  `%LOCALAPPDATA%\Programs\DockerDesktop`. Its CLI directory is already in the
+  persistent user PATH, but absent from this older shell's inherited PATH.
+  Prepended that directory only for the verification command; no reinstall or
+  persistent PATH change was needed. CLI is 29.7.2 and Compose is v5.5.0.
+- Docker Desktop processes were already running. `docker desktop start
+  --timeout 30` reported already running, while `docker desktop status`
+  reported stopped. Backend logs explicitly report `hasNoVirtualization: true`
+  and a stopped Linux engine. `docker version` returned an engine HTTP 500.
+- Windows reports Microsoft Virtual Machine, HypervisorPresent true, and
+  VirtualizationFirmwareEnabled / SecondLevelAddressTranslationExtensions
+  false. `wsl --status` reports WSL is not installed. Attempting
+  `wsl --install --no-distribution` in this non-administrator session did not
+  install it; it returned the same not-installed message.
+- `npm.cmd run test:integration` was executed with the real Docker CLI. It
+  exited 1 because the Docker engine `_ping` endpoint returned HTTP 500 during
+  Compose startup. No PostgreSQL test or migration command was reached; this
+  is an environment failure, not a passing or skipped acceptance run.
+- Required external remediation: enable nested virtualization on the VM host,
+  then install WSL 2 with administrator privileges in Windows and restart as
+  required. See [Docker VM prerequisites](https://docs.docker.com/desktop/setup/vm-vdi/)
+  and [Microsoft WSL installation](https://learn.microsoft.com/en-us/windows/wsl/install).
+  The host configuration is not accessible from this guest session.
+- Updated README, timeline and handoff with the verified blocker. Only
+  documentation changed; previously recorded unit/build checks were not rerun.
+  No push, PR, code review, merge or Phase 2 implementation was performed.
+  After environment repair, rerun integration (which starts only the isolated
+  test service, deploys/checks migrations and runs the SQL suite), then push and
+  complete code review before marking Phase 1 accepted.
+
 ### Phase 1 - public document API foundation
 
 - Worked in the actual `NCKU RAG/NCKU-RAG` checkout on
