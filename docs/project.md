@@ -1,5 +1,12 @@
 # 一、專案目標
 
+> Scope update (2026-09-07): the approved Phase 2 specification supersedes any
+> password-login or broader Phase 2 suggestions in this historical roadmap.
+> Phase 2A is Google OAuth only, exact active-email allowlist, database sessions,
+> UUID User/Role preservation, server DAL/RBAC, bootstrap and minimal UI/CI.
+> See `docs/auth.md` and `docs/timeline.md`. Stop after Phase 2A; Phase 2B–2D need
+> their own acceptance and authorization. No push, merge or deployment is authorized.
+
 > Implementation note (2026-09-06): this document describes the overall product
 > roadmap, not completed functionality. The current Phase 1 scope is read-only
 > public document list/detail APIs. See `docs/api.md` for the implemented contract

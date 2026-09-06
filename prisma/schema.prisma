@@ -42,15 +42,71 @@ enum DocumentStatus {
 }
 
 model User {
-  id        String     @id @default(uuid()) @db.Uuid
-  name      String
-  email     String     @unique
-  role      Role       @default(editor)
-  documents Document[]
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  id            String     @id @default(uuid()) @db.Uuid
+  name          String
+  email         String     @unique
+  emailVerified Boolean    @default(false) @map("email_verified")
+  image         String?
+  role          Role       @default(editor)
+  isActive      Boolean    @default(false) @map("is_active")
+  documents     Document[]
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id") @db.Uuid
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  // Required by the adapter schema; password authentication is disabled.
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verifications")
 }
 
 model Document {

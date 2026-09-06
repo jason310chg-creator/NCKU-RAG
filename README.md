@@ -1,12 +1,14 @@
 # Knowledge Base Data Platform
 
 RAG-ready data management platform for department knowledge. Phase 1 implements
-public read-only document list and detail APIs. All 18 real PostgreSQL integration
-tests pass using native PostgreSQL 17 on Windows. Docker remains an optional
-test backend; this VM cannot run its Linux engine. Admin management, search and
-RAG export are later phases; chatbot and embeddings are not implemented.
+public read-only document list and detail APIs. Phase 2A adds Google-only login,
+an exact-email allowlist, database sessions, server authorization and CI.
+Native PostgreSQL 17 on Windows provides real integration testing when Docker
+cannot run in this VM. Document/user management, search and RAG export are later
+phases; chatbot and embeddings are not implemented.
 
 See [API contract and tests](docs/api.md) and [phase status](docs/timeline.md).
+See [Google OAuth setup and security](docs/auth.md) before using `/login`.
 
 ## Tech Stack
 

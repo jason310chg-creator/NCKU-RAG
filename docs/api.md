@@ -2,10 +2,14 @@
 
 Implemented: `GET /api/v1/documents` and `GET /api/v1/documents/{id}`.
 All 18 integration tests pass against native PostgreSQL 17.11 on Windows.
-Unit/HTTP tests and production build pass. Search, writes, login, uploads and
-RAG export endpoints are not implemented.
+Phase 2A adds the separate Google-only authentication surface below. Search,
+document/user writes, uploads and RAG export endpoints are not implemented.
 
 ## Contract and access policy
+
+Authentication does not change this public API. Anonymous callers still need no
+session or API key; the Phase 1 eligibility, response shape and uniform 404 remain
+unchanged. No auth middleware intercepts `/api/v1/documents`.
 
 Request parameter names and JSON fields use **snake_case**, matching
 `docs/project.md`. TypeScript and Prisma use camelCase internally; serialization
@@ -184,3 +188,39 @@ for acceptance; rerunning native mode always creates a fresh one.
 `npm run test` reports unit and mocked HTTP/repository-contract tests only.
 `npm run test:integration` is real SQL acceptance; missing Docker or a failed
 database startup produces a nonzero exit rather than a skipped pass.
+
+## Phase 2A authentication surface
+
+See [auth setup, migration and manual acceptance](auth.md) for configuration.
+
+| Method | Path | Behavior |
+| --- | --- | --- |
+| POST | `/api/auth/sign-in/social` | Google authorization-code initiation; exact configured Origin required |
+| GET | `/api/auth/callback/google` | Google callback with state cookie and PKCE; fresh verified email and active allowlist check |
+| GET | `/api/auth/get-session` | Real database session or null; no cookie-session cache |
+| POST | `/api/auth/sign-out` | Revokes the current database session; exact configured Origin required |
+
+Only Google is accepted. Direct client ID-token submissions return 400. Other
+auth GET/POST paths, including concrete password-reset URLs, return 404 before
+initializing configuration. Password, signup and self-management are not exposed.
+Auth responses use `Cache-Control: no-store`; errors are generic and never echo
+provider error descriptions, SQL, stack or credentials. A missing auth setting
+returns explicit 500 `AUTH_CONFIGURATION_ERROR`. Unexpected database failures
+return 500, including library failures that would otherwise appear as null or a
+login redirect. Failed browser callbacks return to `/login` with a generic error.
+
+The server DAL verifies the session and reloads the current User role/active
+state. `requireUser` requires an active user; `requireEditor` accepts only active
+Editor/Admin; `requireAdmin` accepts only active Admin. No session yields 401;
+inactive/insufficient permission yields 403. `/admin` is the sole protected page
+in 2A: anonymous browser navigation redirects to `/login`, while Viewer/inactive
+users receive 403. Authorization policies for document reading/editing are
+defined for future calls; no protected document/user mutation API exists yet.
+
+Real SQL tests now include OAuth-to-UUID linking, exact email/verified claims,
+session revocation/expiry, database outage behavior, role/deactivation changes,
+first-Admin concurrency, populated migration preservation and collision rollback.
+The Google token and signing-key HTTP endpoints use deterministic test responses;
+the actual handler, token verifier, adapter, database and DAL are not mocked.
+Real Google consent/callback and hosted GitHub Actions still require their own
+acceptance; a local PostgreSQL pass does not claim either has run.

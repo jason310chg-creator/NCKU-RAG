@@ -70,8 +70,17 @@ with Git commits.
   independent agent code review found one Docker failure-cleanup issue, and
   the fix passed regression tests and re-review. Final checks: 58 Vitest tests,
   9 runner safety tests, 18 integration tests, typecheck, lint and build.
-  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) is open for
-  maintainer review; no merge/deployment or Phase 2 work has occurred.
+  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) was merged into
+  master `2cf9d027fdc163a8bf7a198cbbe621e6aa921999` on 2026-09-07 Taipei time.
+- Phase 2A is implemented and locally accepted on `feat/phase-2a-auth-foundation`:
+  Google-only Better Auth 1.7.3, exact active-email allowlist, UUID auth migration,
+  database sessions, fresh DAL roles, first-Admin bootstrap, minimal UI and CI.
+  Final checks: 163 Vitest + 9 safety tests, 79 real PostgreSQL integration tests,
+  13 production HTTP checks, clean install/generate, typecheck, lint and build.
+  See `docs/auth.md` for setup, migration behavior and security assumptions.
+- Stop after Phase 2A. No push, merge, deploy, repository settings changes or
+  Phase 2B work is authorized. Hosted CI/maintainer review are pending; real
+  Google consent/callback and intended HTTPS browser checks are pre-deployment gates.
 - Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
 - Run `npm run db:generate` after installing dependencies in a fresh checkout.
 - Both integration modes use only the disposable test DB on localhost `55433`.

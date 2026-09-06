@@ -1,5 +1,119 @@
 # Development Log
 
+## 2026-09-07
+
+### Phase 2A - Google identity foundation and local acceptance
+
+- Read the repository instructions, roadmap, log, timeline and README; read
+  installed Next 16.2.6 route/page/headers/authentication/forbidden documentation
+  before implementing framework boundaries. The user's new specification
+  supersedes historical password-login suggestions and ends after Phase 2A.
+- Verified PR #1 merged and created `feat/phase-2a-auth-foundation` from master
+  `2cf9d027fdc163a8bf7a198cbbe621e6aa921999`. No existing user edits were present.
+  No push, merge, deployment, repository settings change or Phase 2B work occurred.
+- Added a clean GitHub Actions pipeline: Node 24, locked install, explicit Prisma
+  generation, unit/safety tests, disposable Docker PostgreSQL tests, types, lint
+  and production build. Actions are pinned to release commit SHAs, permissions
+  are read-only and checkout does not persist credentials. Hosted CI was not run.
+- Pinned Better Auth 1.7.3 after checking installed provider/adapter/linking APIs.
+  Google OAuth is the only public login flow; exact method/path and Origin gates
+  exclude all passwords, signup, direct ID-token login and self-management.
+  JWT signature/issuer/audience/age/expiry and fresh verified email are checked
+  before matching an active precreated UUID. Returning linked accounts must
+  still map to that same allowlist UUID. User creation is unconditionally denied.
+- Added explicit UUID Account/Session/Verification schema and migration
+  `20260907000000_phase2a_auth`, preserving Phase 1 content and ownership. Existing
+  users become inactive; canonical email collisions abort the entire migration.
+  Review found POSIX whitespace differs from JavaScript trim: replaced it with
+  an explicit ECMAScript set and proved NBSP/BOM collision rollback in real SQL.
+- Added first-Admin CLI with explicit email/name, no password, transaction
+  advisory lock, UUID preservation and idempotency. Real SQL tests cover same
+  and different-email races and reject unintended elevation/reactivation.
+- Added fresh server DAL/RBAC, minimal login/admin/logout pages and explicit
+  Next authInterrupts for actual 403 responses. Unexpected auth/DB errors remain
+  failures; server boundaries sanitize them so Next cannot log raw SQL/secrets.
+  Known authentication/authorization errors retain their 401/403 semantics.
+- TDD evidence: config, bootstrap, DAL and UI/route suites first failed on absent
+  modules. The actual UUID callback proof initially found Better Auth's stale
+  local `emailVerified` read after linking when its built-in verification option
+  was set. Removed that redundant option while retaining fresh Google JWT/email
+  verification, UUID binding and a fresh session-create check. The isolated
+  real-PG callback proof then passed (1 selected test) before broader acceptance.
+  No open registration or identity model change was used. Additional safe-error
+  boundary tests produced 9 failures before their implementation, then passed.
+- Final verification after clean `npm.cmd ci` and `npm.cmd run db:generate`:
+  **163 Vitest tests / 15 files**, **9 runner safety tests**, **79 real PostgreSQL
+  integration tests / 4 files** (49 auth, 6 bootstrap, 6 migration, 18 unchanged
+  Phase 1 API regressions); Prisma validate, typecheck, lint and build all pass.
+  Native PostgreSQL 17.11 started from blank data, deployed both migrations,
+  reported up-to-date, and stopped/removed its owned cluster after exit 0
+  (`%TEMP%/ncku-rag-pg-s3x2LE`). No development database was touched.
+- 13 actual production HTTP checks passed: login 200; missing config 500;
+  password 404; public invalid input 400; anonymous admin redirect; Viewer and
+  inactive 403; Editor/Admin 200; same-cookie demotion/deactivation immediately
+  denied; logout succeeded and old cookie redirected to login. This used another
+  fresh owned PostgreSQL cluster and runtime-only synthetic session fixtures,
+  then stopped both app processes and removed the cluster. This is HTTP page
+  boundary verification, not real Google consent/callback or TLS browser testing.
+- Independent final review reported no remaining code blockers. Auth access/
+  refresh tokens are encrypted; ID/session tokens still require protected DB
+  storage. Locale-specific non-ASCII legacy email casing requires operator
+  review before migration. Better Auth linking and Next authInterrupts need
+  regression testing on upgrades. Existing dependency audit remains 19 findings
+  (15 high, 3 moderate, 1 low), unchanged after install; no forced upgrade.
+- Local implementation is ready for maintainer code review. Formal merge-ready
+  status still needs remote CI/review, which are outside current authorization.
+  Genuine Google consent/callback and intended HTTPS cookie/browser behavior
+  remain explicit pre-deployment acceptance; no real credentials were supplied.
+  No persistent real Admin was created without the user's explicit identity.
+
+### Commands used for Phase 2A
+
+```powershell
+git fetch origin
+git switch -c feat/phase-2a-auth-foundation origin/master
+npm.cmd install --save-exact better-auth@1.7.3
+npm.cmd install --save-dev --save-exact tsx jose
+npm.cmd install --save-dev --save-exact pg@8.23.0 @types/pg@8.23.1
+npm.cmd exec prisma format
+npm.cmd exec prisma validate
+npm.cmd run db:generate
+npm.cmd exec vitest run -- --config vitest.integration.config.ts tests/integration/auth.integration.test.ts
+node node_modules/vitest/vitest.mjs run src/lib/auth/config.test.ts
+node node_modules/vitest/vitest.mjs run src/lib/auth/bootstrap.test.ts
+node node_modules/vitest/vitest.mjs run src/lib/auth/dal-core.test.ts src/lib/auth/policy.test.ts
+node node_modules/vitest/vitest.mjs run src/lib/auth/dal.test.ts src/lib/auth/dal-core.test.ts
+npm.cmd ci
+npm.cmd run db:generate
+npm.cmd run test
+npm.cmd run typecheck
+npm.cmd run lint
+npm.cmd run build
+$env:PG_BIN = 'C:\Users\jason\AppData\Local\NCKU-RAG\tools\postgresql-17.11-3\pgsql\bin'
+npm.cmd run test:integration -- --native
+node C:\Users\jason\AppData\Local\Temp\ncku-rag-http-smoke-oPeC3V\smoke.mjs
+```
+
+The direct integration command above was the initial missing-module red check,
+not a bypass of database isolation. Real SQL acceptance always used the owned
+native runner. The first UUID proof used a temporary copy of that runner with
+Vitest arguments `tests/integration/auth.integration.test.ts -t "links a
+pre-created UUID Editor"`; the temporary runner was removed afterward. Its first
+failed run's stopped diagnostic cluster remains at `%TEMP%/ncku-rag-pg-exCsDv`.
+Successful full acceptance cleans its cluster. The one-time HTTP smoke harness
+is local in `%TEMP%`, uses generated runtime-only secrets and is not a CI script.
+The runner internally executes these commands against its fixed isolated URL:
+
+```powershell
+node node_modules/prisma/build/index.js migrate deploy
+node node_modules/prisma/build/index.js migrate status
+node node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts
+```
+
+Bootstrap CLI negative checks also ran with no args, missing DATABASE_URL and
+an invalid test URL: each exited 1 without disclosing the test secret marker.
+Successful bootstrap/idempotency/concurrency are covered by the real SQL suite.
+
 ## 2026-09-06
 
 ### Phase 1 - pushed branch and completed code review
