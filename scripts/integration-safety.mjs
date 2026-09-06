@@ -12,6 +12,20 @@ export function parseMode(args) {
   throw new Error("Usage: npm run test:integration -- [--native]");
 }
 
+export function createDockerLifecycle(run) {
+  let attempted = false;
+  return {
+    async start() {
+      // Compose may create/start the container before its health check fails.
+      attempted = true;
+      await run("docker", ["compose", "--profile", "test", "up", "-d", "--wait", "postgres-test"]);
+    },
+    async stop() {
+      if (attempted) await run("docker", ["compose", "--profile", "test", "stop", "postgres-test"]);
+    },
+  };
+}
+
 export function buildTestEnvironment(source, mode, data = "") {
   // libpq, node-postgres and Windows resolve several of these case-insensitively.
   const env = Object.fromEntries(Object.entries(source).filter(([key]) =>

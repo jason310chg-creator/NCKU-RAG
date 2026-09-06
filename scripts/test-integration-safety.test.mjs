@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   assertClusterIdentity, assertOwnedDirectory, assertPortAvailable, assertSafeToRemove, assertOwnedPid,
-  buildTestEnvironment, createOwnedDirectory, parseMode, validatePgBin,
+  buildTestEnvironment, createDockerLifecycle, createOwnedDirectory, parseMode, validatePgBin,
 } from "./integration-safety.mjs";
 
 test("Docker stays the default and native must be requested explicitly", () => {
@@ -15,6 +15,35 @@ test("Docker stays the default and native must be requested explicitly", () => {
   for (const args of [["--docker"], ["--native", "--native"], ["--native", "--port=5432"]]) {
     assert.throws(() => parseMode(args), /Usage/);
   }
+});
+
+test("failed or interrupted Compose startup still stops only postgres-test in finally", async () => {
+  for (const reason of ["unhealthy container", "SIGINT"]) {
+    const calls = [];
+    let reachedMigrations = false;
+    const docker = createDockerLifecycle(async (command, args) => {
+      calls.push([command, ...args]);
+      if (args.includes("up")) throw new Error(reason);
+    });
+    await assert.rejects(async () => {
+      try {
+        await docker.start();
+        reachedMigrations = true;
+      } finally { await docker.stop(); }
+    }, new RegExp(reason));
+    assert.equal(reachedMigrations, false);
+    assert.deepEqual(calls, [
+      ["docker", "compose", "--profile", "test", "up", "-d", "--wait", "postgres-test"],
+      ["docker", "compose", "--profile", "test", "stop", "postgres-test"],
+    ]);
+  }
+});
+
+test("native mode and preflight failures never stop an unattempted Docker service", async () => {
+  const calls = [];
+  const docker = createDockerLifecycle(async (...args) => { calls.push(args); });
+  await docker.stop();
+  assert.deepEqual(calls, []);
 });
 
 test("native mode requires an absolute PostgreSQL binary directory", () => {

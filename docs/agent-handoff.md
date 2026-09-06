@@ -66,8 +66,12 @@ with Git commits.
   Set `PG_BIN` to that absolute directory and run
   `npm.cmd run test:integration -- --native`. See `docs/api.md` for isolation,
   diagnostics and cleanup. Default `test:integration` still uses Docker.
-- Push the Phase 1 branch only after integration tests pass, then complete code
-  review. Do not begin Phase 2 until Phase 1 acceptance is complete.
+- Phase 1 technical acceptance is complete: integration passed before push,
+  independent agent code review found one Docker failure-cleanup issue, and
+  the fix passed regression tests and re-review. Final checks: 58 Vitest tests,
+  9 runner safety tests, 18 integration tests, typecheck, lint and build.
+  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) is open for
+  maintainer review; no merge/deployment or Phase 2 work has occurred.
 - Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
 - Run `npm run db:generate` after installing dependencies in a fresh checkout.
 - Both integration modes use only the disposable test DB on localhost `55433`.

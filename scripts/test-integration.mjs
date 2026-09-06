@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   assertClusterIdentity, assertOwnedDirectory, assertOwnedPid, assertPortAvailable,
-  assertSafeToRemove, buildTestEnvironment, createOwnedDirectory, parseMode, validatePgBin,
+  assertSafeToRemove, buildTestEnvironment, createDockerLifecycle, createOwnedDirectory, parseMode, validatePgBin,
 } from "./integration-safety.mjs";
 
 const cwd = fileURLToPath(new URL("../", import.meta.url));
@@ -12,7 +12,7 @@ let env;
 let owned;
 let binaries;
 let logPath;
-let startedDocker = false;
+const docker = createDockerLifecycle(execute);
 let attemptedNativeStart = false;
 let failed = false;
 let interrupted;
@@ -125,8 +125,7 @@ try {
     await execute(binaries.createdb, ["--no-password", "--host=127.0.0.1", "--port=55433", "--username=kb_test", "--maintenance-db=postgres", "kb_platform_test"]);
     await verifyNativeCluster("kb_platform_test");
   } else {
-    await execute("docker", ["compose", "--profile", "test", "up", "-d", "--wait", "postgres-test"]);
-    startedDocker = true;
+    await docker.start();
   }
   await execute(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "deploy"]);
   await execute(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "status"]);
@@ -141,10 +140,8 @@ try {
   }
 } finally {
   cleaningUp = true;
-  if (startedDocker) {
-    try { await execute("docker", ["compose", "--profile", "test", "stop", "postgres-test"]); }
-    catch (error) { console.error("Could not stop the test database:", error); failed = true; }
-  }
+  try { await docker.stop(); }
+  catch (error) { console.error("Could not stop the test database:", error); failed = true; }
   if (owned) {
     try {
       assertOwnedDirectory(owned);

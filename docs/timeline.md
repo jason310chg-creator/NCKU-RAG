@@ -16,10 +16,12 @@ environment. That runtime state is not assumed for a new checkout or computer.
 
 ## Phase 1 - Data Model and API Foundation
 
-Status: implementation and PostgreSQL integration verified on 2026-09-06 using
-the user-approved native PostgreSQL 17 mode. Branch push and code review are
-the remaining acceptance steps. Docker's Linux engine remains unavailable in
-this Windows VM; its runtime is not certified by the native test result.
+Status: Phase 1 technical acceptance complete on 2026-09-06 using the
+user-approved native PostgreSQL 17 mode. Integration passed, the branch was
+pushed, and independent agent code review completed with its one finding fixed
+and rechecked. [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1)
+is open for maintainer review; no merge or deployment has occurred. Docker's
+Linux engine remains unavailable in this VM and is not certified by native tests.
 
 - [x] Initial migration exists: `20260512175544_init` (present before this work)
 - [x] Validate schema and generate Prisma client locally
@@ -35,13 +37,13 @@ this Windows VM; its runtime is not certified by the native test result.
 - [x] Provide explicit native PostgreSQL 17 mode when Docker cannot run
 - [x] Execute real PostgreSQL integration tests (18 passed)
 - [x] Verify migration application in the isolated PostgreSQL test database
-- [ ] After integration tests pass, push the Phase 1 branch and complete code review
+- [x] After integration tests pass, push the Phase 1 branch and complete code review
 
 ## Phase 2 - Admin Data Management
 
-Status: pending; do not start until Phase 1 acceptance is complete. Start with
-authentication and role authorization design and tests before exposing
-administrative data or write operations.
+Status: pending; not started during Phase 1 acceptance. When Phase 2 begins,
+start with authentication and role authorization design and tests before
+exposing administrative data or write operations.
 
 - [ ] Build admin dashboard layout
 - [ ] Build document list page

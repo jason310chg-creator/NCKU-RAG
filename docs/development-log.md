@@ -2,6 +2,34 @@
 
 ## 2026-09-06
 
+### Phase 1 - pushed branch and completed code review
+
+- After native integration and quality checks passed, committed the native
+  runner at `ab1d12e` and pushed `feat/phase-1-api-foundation`. Opened
+  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) against `master`.
+- Independent agent review covered the full Phase 1 diff from `828b1cb`,
+  including public SQL eligibility, Taipei dates, filter/count consistency,
+  privacy/serialization, input validation, Prisma and test-cluster lifecycle.
+- Review found one P2 issue: Compose can start a container before `up --wait`
+  fails its health check, but the old success-only flag skipped cleanup.
+  Added a lifecycle helper that records attempted startup before waiting and
+  attempts scoped `stop postgres-test` in finally. It does nothing if startup
+  was never attempted, including native mode. The regression test failed with
+  the old flag placement, then passed after the fix.
+- Final verification after this fix: `npm.cmd run test` passed 58 Vitest and
+  9 runner safety tests; lint passed. Native integration again applied the
+  initial migration to a fresh PostgreSQL 17.11 cluster, confirmed schema up to
+  date, passed all 18 tests, then stopped and removed its data directory
+  (`%TEMP%\ncku-rag-pg-dGmo8t`, exit 0). Typecheck/build passed before this
+  scripts-only cleanup fix; application code was unchanged by the fix.
+- Reviewer rechecked the fix and reported no remaining actionable findings.
+  Docker failure cleanup is covered at the command boundary; real Docker
+  runtime and force-kill recovery remain unverified. Existing dependency
+  audit findings remain separately tracked.
+- Phase 1 technical acceptance is complete through the user-approved native
+  PostgreSQL route. PR is ready for maintainer review. No merge, deployment,
+  or Phase 2 implementation was performed.
+
 ### Phase 1 - native PostgreSQL integration acceptance
 
 - User confirmed nested virtualization is unavailable and explicitly chose
