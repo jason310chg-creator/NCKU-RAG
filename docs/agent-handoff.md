@@ -5,7 +5,8 @@ Use this when you want any coding agent to enter the project state quickly.
 ## Copy/Paste Prompt
 
 ```text
-You are working in `c:\Users\jason\Documents\projects\agent`.
+You are working in the actual checkout of `jason310chg-creator/NCKU-RAG`.
+Confirm the repository root with `git rev-parse --show-toplevel` before editing.
 
 Before changing code, read and summarize these files:
 
@@ -53,6 +54,13 @@ with Git commits.
 - Stack: Next.js 16, TypeScript, PostgreSQL, Prisma, Vitest, Docker Compose.
 - Local PostgreSQL uses host port `5433`.
 - On this Windows PowerShell setup, use `npm.cmd` if `npm` is blocked.
+- Phase 1 API implementation and unit/build checks are complete; real PostgreSQL
+  integration acceptance is blocked by missing Docker in the 2026-09-06 environment.
+- Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
+- Run `npm run db:generate` after installing dependencies in a fresh checkout.
+- `npm run test:integration` uses only the disposable test DB on localhost `55433`.
+- The migration file already exists. Do not infer it has been applied locally
+  from the historical development log; `.env` is not part of the checkout.
 
 ## Expected Agent Startup Behavior
 

@@ -2,51 +2,69 @@
 
 ## Phase 0 - Project Foundation
 
-Status: in progress
+Status: foundation implemented; source and quality checks verified on 2026-09-06.
 
-- Initialize Next.js project
-- Add TypeScript, lint, test, and typecheck commands
-- Add Docker Compose PostgreSQL service
-- Add Prisma schema foundation
-- Add first TDD example for RAG export rules
-- Document local setup and development notes
+- [x] Initialize Next.js project
+- [x] Add TypeScript, lint, test, and typecheck commands
+- [x] Add Docker Compose PostgreSQL service
+- [x] Add Prisma schema foundation
+- [x] Add first TDD example for RAG export rules
+- [x] Document local setup and development notes
+
+The 2026-05-13 log records a running DB and applied migration in the old
+environment. That runtime state is not assumed for a new checkout or computer.
 
 ## Phase 1 - Data Model and API Foundation
 
-Status: pending
+Status: implementation complete; PostgreSQL integration acceptance blocked by
+missing Docker. Do not mark the entire phase verified until the DB suite passes.
 
-- Create initial Prisma migration
-- Add Prisma client helper
-- Build document list API
-- Build document detail API
-- Add API validation with Zod
-- Add tests for document filtering and status rules
+- [x] Initial migration exists: `20260512175544_init` (present before this work)
+- [x] Validate schema and generate Prisma client locally
+- [x] Add lazy Prisma client with development hot-reload reuse
+- [x] Build public document list API with filters, pagination and stable ordering
+- [x] Build public document detail API with UUID validation and uniform 404
+- [x] Add strict Zod validation and explicit response serialization
+- [x] Separate public policy from future departmental RAG eligibility
+- [x] Define inclusive Taipei DATE boundaries in tests and API documentation
+- [x] Add domain, validation, repository-contract, service, singleton and HTTP unit tests
+- [x] Add isolated Compose test service and repeatable real PostgreSQL fixtures
+- [x] Pass test, typecheck, lint and production build
+- [ ] Execute real PostgreSQL integration tests (Docker executable unavailable)
+- [ ] Verify migration application in the isolated PostgreSQL test database
 
 ## Phase 2 - Admin Data Management
 
-Status: pending
+Status: pending. Start with authentication and role authorization design and
+tests before exposing administrative data or write operations.
 
-- Build admin dashboard layout
-- Build document list page
-- Build create and edit document forms
-- Add category, tag, source, visibility, and status controls
-- Add basic role-aware access checks
+- [ ] Build admin dashboard layout
+- [ ] Build document list page
+- [ ] Build create and edit document forms
+- [ ] Add category, tag, source, visibility, and status controls
+- [ ] Add basic role-aware access checks
 
 ## Phase 3 - Files and Search
 
 Status: pending
 
-- Add local file upload storage
-- Parse TXT and Markdown first
-- Add PDF and DOCX parsing
-- Add keyword search over title and content
-- Add tests for upload validation and search behavior
+- [ ] Add local file upload storage
+- [ ] Parse TXT and Markdown first
+- [ ] Add PDF and DOCX parsing
+- [ ] Add keyword search over title and content
+- [ ] Add tests for upload validation and search behavior
 
 ## Phase 4 - RAG Export MVP
 
 Status: pending
 
-- Add API-key protected RAG export endpoint
-- Return normalized text and metadata
-- Exclude draft, archived, expired, and admin-only records
-- Add endpoint tests for export eligibility
+- [ ] Define API-key scopes and authorize department-only access explicitly
+- [ ] Add API-key protected RAG export endpoint
+- [ ] Return normalized text and metadata
+- [ ] Exclude draft, archived, future, expired, and admin-only records
+- [ ] Add endpoint tests for export eligibility
+
+## Maintenance follow-up
+
+- [ ] Review dependency audit findings (2026-09-06: 19 total; 15 high, 3 moderate,
+  1 low). Dependency upgrades are separate from this API foundation change.

@@ -1,5 +1,12 @@
 # 一、專案目標
 
+> Implementation note (2026-09-06): this document describes the overall product
+> roadmap, not completed functionality. The current Phase 1 scope is read-only
+> public document list/detail APIs. See `docs/api.md` for the implemented contract
+> and `docs/timeline.md` for verified status. The public list does not accept the
+> historical `status` parameter below: status is always published and visibility
+> is always public. API parameter/response names use snake_case throughout.
+
 ## 專案名稱
 
 資訊系問答資料提供平台 / Knowledge Base Data Platform

@@ -1,4 +1,21 @@
 services:
+  postgres-test:
+    image: postgres:17-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_DB: kb_platform_test
+      POSTGRES_USER: kb_test
+      # Disposable local test data only; no stored password or production volume.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:55433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kb_test -d kb_platform_test"]
+      interval: 1s
+      timeout: 5s
+      retries: 30
   postgres:
     image: postgres:17-alpine
     container_name: kb-platform-postgres

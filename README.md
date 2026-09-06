@@ -1,8 +1,11 @@
 # Knowledge Base Data Platform
 
-RAG-ready data management platform for department knowledge. The first phase
-focuses on data creation, classification, publishing, search, and export APIs.
-It does not build chatbot, embedding, or semantic search features yet.
+RAG-ready data management platform for department knowledge. Phase 1 implements
+public read-only document list and detail APIs. Real PostgreSQL integration
+acceptance is pending local Docker availability. Admin management, search and
+RAG export are later phases; chatbot and embeddings are not implemented.
+
+See [API contract and tests](docs/api.md) and [phase status](docs/timeline.md).
 
 ## Tech Stack
 
@@ -19,7 +22,7 @@ It does not build chatbot, embedding, or semantic search features yet.
 Install dependencies:
 
 ```bash
-npm install
+npm ci
 ```
 
 Copy environment variables:
@@ -64,7 +67,14 @@ instead, for example `npm.cmd run dev`.
 npm run lint
 npm run typecheck
 npm run test
+npm run build
+npm run test:integration
 ```
+
+Generate the Prisma client before typecheck/build in a fresh checkout. The
+integration command requires Docker Compose and starts only a disposable test
+database on localhost port `55433`; it does not use `.env` or the development
+database on `5433`. See [API testing](docs/api.md#local-verification).
 
 ## Development Rules
 

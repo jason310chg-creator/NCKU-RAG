@@ -28,20 +28,20 @@ export default function Home() {
               RAG-ready data management for department knowledge.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-              The first milestone focuses on clean data creation, publishing,
-              source quality, search, and export APIs before any chatbot or
-              embedding work begins.
+              The public document list and detail APIs are implemented.
+              PostgreSQL integration verification is pending local Docker setup.
+              Data management, search, and export remain planned milestones.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 text-sm font-medium">
             <span className="rounded border border-slate-300 bg-slate-50 px-3 py-2">
-              MVP initialized
+              Phase 1 APIs implemented
             </span>
             <span className="rounded border border-slate-300 bg-slate-50 px-3 py-2">
               TDD enabled
             </span>
             <span className="rounded border border-slate-300 bg-slate-50 px-3 py-2">
-              PostgreSQL planned
+              Initial migration included
             </span>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function Home() {
 
       <section className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-12 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950">MVP Scope</h2>
+          <h2 className="text-xl font-semibold text-slate-950">Planned MVP Scope</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {mvpItems.map((item) => (
               <div
