@@ -17,25 +17,42 @@ export type Role = (typeof roles)[number];
 export type SourceType = (typeof sourceTypes)[number];
 export type Visibility = (typeof visibilityLevels)[number];
 
-export function isRagExportable(input: {
+type PublicationInput = {
   status: DocumentStatus;
+  validFrom?: Date | null;
   validUntil?: Date | null;
   visibility: Visibility;
   now?: Date;
-}) {
-  const now = input.now ?? new Date();
+};
 
-  if (input.status !== "published") {
-    return false;
-  }
+/** A PostgreSQL DATE is represented by its UTC date, not a timestamp. */
+export function dateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
 
-  if (input.visibility === "admin_only") {
-    return false;
-  }
+/** Today's Taipei calendar date encoded as UTC midnight for Prisma @db.Date. */
+export function taipeiDate(now: Date): Date {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(now);
+  const part = (type: string) => parts.find((value) => value.type === type)!.value;
+  return new Date(`${part("year")}-${part("month")}-${part("day")}T00:00:00.000Z`);
+}
 
-  if (input.validUntil && input.validUntil < now) {
-    return false;
-  }
+function isPublishedAndValid(input: PublicationInput): boolean {
+  const today = dateOnly(taipeiDate(input.now ?? new Date()));
+  const from = input.validFrom == null ? null : dateOnly(input.validFrom);
+  const until = input.validUntil == null ? null : dateOnly(input.validUntil);
+  return input.status === "published" &&
+    (from === null || from <= today) && (until === null || until >= today);
+}
 
-  return true;
+export function isPublicDocument(input: PublicationInput): boolean {
+  return isPublishedAndValid(input) && input.visibility === "public";
+}
+
+/** Future authorized departmental export only; never use as public API policy. */
+export function isRagExportable(input: PublicationInput): boolean {
+  return isPublishedAndValid(input) &&
+    (input.visibility === "public" || input.visibility === "department_only");
 }

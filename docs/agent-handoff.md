@@ -5,7 +5,8 @@ Use this when you want any coding agent to enter the project state quickly.
 ## Copy/Paste Prompt
 
 ```text
-You are working in `c:\Users\jason\Documents\projects\agent`.
+You are working in the actual checkout of `jason310chg-creator/NCKU-RAG`.
+Confirm the repository root with `git rev-parse --show-toplevel` before editing.
 
 Before changing code, read and summarize these files:
 
@@ -53,6 +54,29 @@ with Git commits.
 - Stack: Next.js 16, TypeScript, PostgreSQL, Prisma, Vitest, Docker Compose.
 - Local PostgreSQL uses host port `5433`.
 - On this Windows PowerShell setup, use `npm.cmd` if `npm` is blocked.
+- Phase 1 API implementation, unit/build checks and 18 real PostgreSQL integration
+  tests pass. The initial migration was applied and verified in a fresh native
+  PostgreSQL 17.11 cluster on 2026-09-06. The user explicitly chose native mode
+  because this Windows VM cannot expose nested virtualization to Docker.
+- Docker Desktop 4.89.0 is installed per user, but reports
+  `hasNoVirtualization: true`; WSL is also absent. Docker runtime validation
+  remains unavailable; native mode validates the PostgreSQL/API contract.
+- Native binaries are installed at
+  `%LOCALAPPDATA%\NCKU-RAG\tools\postgresql-17.11-3\pgsql\bin`.
+  Set `PG_BIN` to that absolute directory and run
+  `npm.cmd run test:integration -- --native`. See `docs/api.md` for isolation,
+  diagnostics and cleanup. Default `test:integration` still uses Docker.
+- Phase 1 technical acceptance is complete: integration passed before push,
+  independent agent code review found one Docker failure-cleanup issue, and
+  the fix passed regression tests and re-review. Final checks: 58 Vitest tests,
+  9 runner safety tests, 18 integration tests, typecheck, lint and build.
+  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) is open for
+  maintainer review; no merge/deployment or Phase 2 work has occurred.
+- Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
+- Run `npm run db:generate` after installing dependencies in a fresh checkout.
+- Both integration modes use only the disposable test DB on localhost `55433`.
+- The migration file already exists. Do not infer it has been applied locally
+  from the historical development log; `.env` is not part of the checkout.
 
 ## Expected Agent Startup Behavior
 
