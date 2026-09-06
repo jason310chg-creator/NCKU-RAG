@@ -2,6 +2,47 @@
 
 ## 2026-09-06
 
+### Phase 1 - native PostgreSQL integration acceptance
+
+- User confirmed nested virtualization is unavailable and explicitly chose
+  native Windows PostgreSQL instead of Docker. This verifies the Phase 1 SQL/API
+  contract without changing the existing Docker default or claiming Docker works.
+- Installed the real EDB PostgreSQL 17.11-3 Windows binary runtime under
+  `%LOCALAPPDATA%\NCKU-RAG\tools\postgresql-17.11-3\pgsql` using the ZIP linked
+  from PostgreSQL's official Windows downloads. No Windows service, administrator
+  install, WSL, system PATH change or application dependency was needed.
+  Runtime executables report PostgreSQL 17.11. Download SHA-256 (recorded for
+  reproducibility, not a separately published signature verification):
+  `4b8db0930c38f6ef845db919551dedda3b6b845aeb0927b3d79a6e8e9e4537cf`.
+- Added explicit `npm.cmd run test:integration -- --native`, with absolute
+  `PG_BIN`, PostgreSQL 17 version checks, scrubbed inherited PG connection
+  settings, fixed loopback-only port 55433, and a new temporary cluster per run.
+  Both runner and integration setup verify the owned data directory before
+  writes. Existing databases are never reused; occupied ports fail explicitly.
+- Success stops and deletes only the owned, verified-stopped cluster. Failures
+  retain data and diagnostic logs; ambiguous shutdown prevents deletion.
+  SIGINT/SIGTERM initiates cleanup. Forced termination can still bypass cleanup,
+  as documented in `docs/api.md`.
+- TDD: runner safety tests first failed because the helper did not exist;
+  all 7 now pass, covering explicit options, connection redirects, occupied
+  ports without connections, directory ownership, cluster identity and refusal
+  to delete running/ambiguously stopped data. Included these in `npm run test`.
+- Real Windows execution exposed a pg_ctl inherited-pipe hang after the server
+  was ready. Fixed daemon startup to use file handles. The first diagnostic
+  cluster was stopped after verifying its PID/data path; its failed-run logs
+  remain in `%TEMP%\ncku-rag-pg-nWQQHl`. No migration was reached on that run.
+- Final asynchronous runner verification: native PostgreSQL 17.11 started in
+  fresh `%TEMP%\ncku-rag-pg-lJKglk`; `20260512175544_init` applied successfully,
+  `prisma migrate status` reported schema up to date, and all 18 integration
+  tests passed. The cluster stopped and its directory was removed; exit 0.
+- `npm.cmd run db:generate`, `npm.cmd run test` (58 Vitest + 7 runner safety),
+  `npm.cmd run typecheck`, `npm.cmd run lint` and `npm.cmd run build` passed.
+  Updated setup, API documentation, timeline, handoff and homepage status.
+  Read the installed Next.js page convention before editing homepage copy.
+- Database acceptance is complete; next push this Phase 1 branch and complete
+  code review. Phase 2 has not started. Existing dependency audit findings
+  remain tracked as a separate maintenance follow-up.
+
 ### Phase 1 acceptance retry - Docker engine blocked
 
 - Confirmed the actual repository root and clean branch

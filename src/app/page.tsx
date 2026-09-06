@@ -29,7 +29,7 @@ export default function Home() {
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
               The public document list and detail APIs are implemented.
-              PostgreSQL integration verification is pending local Docker setup.
+              PostgreSQL integration tests pass.
               Data management, search, and export remain planned milestones.
             </p>
           </div>

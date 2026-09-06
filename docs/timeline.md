@@ -16,10 +16,10 @@ environment. That runtime state is not assumed for a new checkout or computer.
 
 ## Phase 1 - Data Model and API Foundation
 
-Status: implementation complete; PostgreSQL integration acceptance blocked by
-the local Docker engine. Docker Desktop is installed, but this Windows VM lacks
-nested virtualization and WSL. Do not mark the entire phase verified until the
-DB suite passes and code review is complete.
+Status: implementation and PostgreSQL integration verified on 2026-09-06 using
+the user-approved native PostgreSQL 17 mode. Branch push and code review are
+the remaining acceptance steps. Docker's Linux engine remains unavailable in
+this Windows VM; its runtime is not certified by the native test result.
 
 - [x] Initial migration exists: `20260512175544_init` (present before this work)
 - [x] Validate schema and generate Prisma client locally
@@ -32,9 +32,9 @@ DB suite passes and code review is complete.
 - [x] Add domain, validation, repository-contract, service, singleton and HTTP unit tests
 - [x] Add isolated Compose test service and repeatable real PostgreSQL fixtures
 - [x] Pass test, typecheck, lint and production build
-- [ ] Enable nested virtualization on the VM host and install WSL 2 in Windows
-- [ ] Execute real PostgreSQL integration tests (Docker engine cannot start)
-- [ ] Verify migration application in the isolated PostgreSQL test database
+- [x] Provide explicit native PostgreSQL 17 mode when Docker cannot run
+- [x] Execute real PostgreSQL integration tests (18 passed)
+- [x] Verify migration application in the isolated PostgreSQL test database
 - [ ] After integration tests pass, push the Phase 1 branch and complete code review
 
 ## Phase 2 - Admin Data Management

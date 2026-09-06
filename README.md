@@ -1,9 +1,9 @@
 # Knowledge Base Data Platform
 
 RAG-ready data management platform for department knowledge. Phase 1 implements
-public read-only document list and detail APIs. Real PostgreSQL integration
-acceptance is pending a working local Docker engine (the current Windows VM
-lacks nested virtualization and WSL). Admin management, search and
+public read-only document list and detail APIs. All 18 real PostgreSQL integration
+tests pass using native PostgreSQL 17 on Windows. Docker remains an optional
+test backend; this VM cannot run its Linux engine. Admin management, search and
 RAG export are later phases; chatbot and embeddings are not implemented.
 
 See [API contract and tests](docs/api.md) and [phase status](docs/timeline.md).
@@ -73,9 +73,22 @@ npm run test:integration
 ```
 
 Generate the Prisma client before typecheck/build in a fresh checkout. The
-integration command requires Docker Compose and starts only a disposable test
-database on localhost port `55433`; it does not use `.env` or the development
-database on `5433`. See [API testing](docs/api.md#local-verification).
+integration command defaults to Docker Compose and starts only a disposable
+test database on localhost port `55433`; it does not use `.env` or the
+development database on `5433`.
+
+On Windows without Docker virtualization support, extract the PostgreSQL 17
+Windows binaries linked from the [official download page](https://www.postgresql.org/download/windows/),
+set `PG_BIN` to their absolute `pgsql\bin` directory, and select native mode:
+
+```powershell
+$env:PG_BIN = "$env:LOCALAPPDATA\NCKU-RAG\tools\postgresql-17.11-3\pgsql\bin"
+npm.cmd run test:integration -- --native
+```
+
+Native mode creates and stops a separate temporary PostgreSQL cluster; it
+requires neither WSL nor a Windows service. See [API testing](docs/api.md#local-verification)
+for isolation checks and cleanup behavior.
 
 ## Development Rules
 

@@ -1,7 +1,7 @@
 # Public Document API v1
 
 Implemented: `GET /api/v1/documents` and `GET /api/v1/documents/{id}`.
-Real PostgreSQL acceptance is pending Docker availability in this environment.
+All 18 integration tests pass against native PostgreSQL 17.11 on Windows.
 Unit/HTTP tests and production build pass. Search, writes, login, uploads and
 RAG export endpoints are not implemented.
 
@@ -135,7 +135,7 @@ Use `npm.cmd` on Windows PowerShell. Unit tests need neither `.env` nor a DB.
 Actual requests use the existing `.env.example`'s `DATABASE_URL`; there is no
 fallback connection string. Build does not connect to a database.
 
-Integration tests require Docker with Linux containers and Compose. The runner
+By default, integration tests require Docker with Linux containers and Compose. The runner
 starts only `postgres-test` on `127.0.0.1:55433`, applies checked-in migrations
 using `migrate deploy`, checks migration status, runs real Prisma/HTTP tests,
 then stops that service. It uses a separate `kb_platform_test` DB, a disposable
@@ -144,6 +144,42 @@ resets the development service or uses a production URL. Both test environment
 URLs must equal the fixed test address; arbitrary URLs are refused. Do not run
 concurrent integration suites against this shared local test port. Each test
 replaces only the isolated database's fixtures.
+
+### Native PostgreSQL 17 on Windows
+
+When Docker cannot run in a VM, use the explicit native mode with real
+PostgreSQL 17 binaries. Download the Windows ZIP linked from
+[PostgreSQL's Windows downloads](https://www.postgresql.org/download/windows/)
+and [EDB binary downloads](https://www.enterprisedb.com/download-postgresql-binaries).
+Extract it under a user-owned directory outside the checkout. No Windows
+service, Docker or WSL is needed for this mode.
+
+```powershell
+# Point PG_BIN at the extracted pgsql\bin directory (absolute path).
+$env:PG_BIN = "$env:LOCALAPPDATA\NCKU-RAG\tools\postgresql-17.11-3\pgsql\bin"
+npm.cmd run test:integration -- --native
+```
+
+Native mode refuses an occupied test port and initializes a new PostgreSQL 17
+cluster under the OS temporary directory for each run. It binds only to
+`127.0.0.1:55433`, creates `kb_platform_test` as `kb_test`, and runs the same
+migration deploy/status and integration suite. The runner and suite check the
+connected cluster's data directory before writes. Inherited PostgreSQL
+connection settings are removed; the fixed test URLs override `.env`.
+Local trust authentication is for disposable fixtures only.
+
+The runner stops its own cluster on exit. Successful runs remove their temporary
+cluster; failures retain the directory and logs for diagnosis. An unconfirmed
+shutdown never triggers directory deletion. Docker remains the default and
+never silently switches to native mode. Neither mode should run concurrently
+on the shared test port. A native pass verifies PostgreSQL/API behavior;
+it does not certify the Docker Compose environment.
+
+Normal SIGINT/SIGTERM cancellation attempts cleanup. Force-killing the runner
+or shutting down Windows can bypass it; inspect the printed directory and use
+`pg_ctl stop -D <that-run-data-directory> -m fast -w` before removing retained
+data. Never stop another PostgreSQL process by name or reuse a retained cluster
+for acceptance; rerunning native mode always creates a fresh one.
 
 `npm run test` reports unit and mocked HTTP/repository-contract tests only.
 `npm run test:integration` is real SQL acceptance; missing Docker or a failed

@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { realpathSync } from "node:fs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Prisma } from "../../src/generated/prisma/client";
 import { createDocumentRepository } from "../../src/lib/documents/repository";
@@ -9,7 +10,7 @@ import { isPublicDocument } from "../../src/lib/domain";
 // Refuse arbitrary URLs, including DATABASE_URL from a developer's .env.
 const testUrl = "postgresql://kb_test@127.0.0.1:55433/kb_platform_test?schema=public";
 if (process.env.TEST_DATABASE_URL !== testUrl || process.env.DATABASE_URL !== testUrl) {
-  throw new Error("Use npm run test:integration with the isolated Compose test database");
+  throw new Error("Use npm run test:integration with the isolated test database");
 }
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl, connectionTimeoutMillis: 3000 }) });
 const now = new Date("2026-05-13T12:00:00Z");
@@ -30,7 +31,28 @@ const query = (value = "") => parseDocumentQuery(new URLSearchParams(value));
 const request = (value = "") => new Request(`http://localhost/api/v1/documents${value}`);
 
 describe("real PostgreSQL document API", () => {
-  beforeAll(async () => { await prisma.$connect(); });
+  beforeAll(async () => {
+    await prisma.$connect();
+    if (process.env.TEST_DATABASE_MODE === "native") {
+      const expectedDirectory = process.env.TEST_DATABASE_DIR;
+      if (!expectedDirectory) throw new Error("Native tests require their owned cluster directory");
+      const [identity] = await prisma.$queryRaw<Array<{
+        directory: string; username: string; database: string; version: string;
+      }>>`SELECT current_setting('data_directory') AS directory,
+        current_user AS username, current_database() AS database,
+        current_setting('server_version_num') AS version`;
+      // Check identity before beforeEach can replace any fixtures.
+      const canonical = (path: string) => {
+        const value = realpathSync(path);
+        return process.platform === "win32" ? value.toLowerCase() : value;
+      };
+      if (!identity || canonical(identity.directory) !== canonical(expectedDirectory) ||
+          identity.username !== "kb_test" || identity.database !== "kb_platform_test" ||
+          !/^17\d{4}$/.test(identity.version)) {
+        throw new Error("Refusing fixtures: connected database is not the owned PostgreSQL 17 cluster");
+      }
+    }
+  });
   beforeEach(async () => {
     await prisma.document.deleteMany();
     await prisma.tag.deleteMany();
