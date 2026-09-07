@@ -48,6 +48,9 @@ export function createAuth(prisma: PrismaClient, config: AuthConfig) {
     socialProviders: { google: {
       clientId: config.googleClientId,
       clientSecret: config.googleClientSecret,
+      // Always let operators recover from choosing an unlisted Google account.
+      // Otherwise Google can silently reuse it and bounce back to the same error.
+      prompt: "select_account",
       disableSignUp: true,
       disableImplicitSignUp: true,
       // Verify the fresh claim below. The provider's built-in option reads a

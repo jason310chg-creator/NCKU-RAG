@@ -60,9 +60,11 @@ reload and logout flow; UUID, verified email, Account relation and session
 revocation were checked against its persistent local acceptance database. A real
 allowed Editor also completed callback, reload and logout. The same browser
 Session was denied on the next request after both a role downgrade and account
-deactivation, and access returned after restoration. A real unlisted account and
-intended HTTPS/browser behavior remain manual gates. No merge, deployment,
-settings change or Phase 2B implementation has occurred.
+deactivation, and access returned after restoration. A real Google Test user that
+was absent from the application database was rejected without creating a User,
+Account or Session. The follow-up account chooser recovery was fixed and checked
+in a real browser. Intended HTTPS/browser behavior remains the manual gate. No
+merge, deployment, settings change or Phase 2B implementation has occurred.
 
 - [x] CI workflow created: clean install, generated Prisma client, unit/SQL tests, typecheck, lint, build
 - [x] Better Auth Google-only login linked to existing UUID User records
@@ -79,7 +81,9 @@ settings change or Phase 2B implementation has occurred.
 - [x] Real allowed Admin Google localhost consent/callback, reload and logout
 - [x] Real allowed Editor Google localhost consent/callback, reload and logout
 - [x] Live Editor role-downgrade and deactivation browser checks
-- [ ] Real unlisted-account rejection and HTTPS acceptance
+- [x] Real unlisted-account rejection without database provisioning
+- [x] Account chooser recovery after an unlisted-account rejection
+- [ ] Intended HTTPS callback and secure-cookie acceptance
 
 ### Phase 2B - Document management APIs, versions and audit
 

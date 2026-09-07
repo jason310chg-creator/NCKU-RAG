@@ -2,6 +2,27 @@
 
 ## 2026-09-07
 
+### Phase 2A - real unlisted-account rejection and login recovery
+
+- After moving the local credentials to a dedicated NCKU-RAG Google OAuth client,
+  an allowed account completed the callback successfully. A separate Google OAuth
+  Test user that was absent from the application database was then rejected to the
+  sanitized `/login` error state. Read-only database verification remained at two
+  Users, two Google Account relations and zero Sessions, so rejected login did not
+  provision or authenticate the third identity.
+- A retry appeared unresponsive because Google silently reused the rejected
+  account and returned immediately to the same error page. The Google provider now
+  sets `prompt: "select_account"`, so every login attempt exposes the account
+  chooser and lets an operator recover. A real-browser retry confirmed the chooser.
+- The generated authorization URL was checked for the Google origin, exact
+  callback, state, PKCE and `prompt=select_account`. All 163 unit tests, nine
+  runner-safety checks, typecheck and lint passed. A disposable native PostgreSQL
+  17 run applied both migrations and passed all 79 integration tests, including a
+  new assertion for the chooser prompt, then stopped and removed its own cluster.
+- Intended HTTPS secure-cookie and production-origin callback behavior remains the
+  only manual browser gate. No credential, token, authorization code, provider
+  subject or cookie value is included in documentation, commits or PR content.
+
 ### Phase 2A - real Google Editor and live RBAC localhost acceptance
 
 - Because the bootstrap CLI is intentionally limited to the first Admin, a

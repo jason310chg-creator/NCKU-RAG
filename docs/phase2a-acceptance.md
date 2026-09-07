@@ -208,9 +208,14 @@ facts. Non-blocking hardening observations are tracked in [auth operations](auth
   the account inactive made the next request return 403 again. The account was
   restored to active Editor, logout removed its Session, and its verified email
   and Google relation remained.
-- **Unlisted account rejection:** the automated signed-token, real SQL and
-  production-HTTP rejection cases passed. A real unlisted Google account remains
-  a manual browser check.
+- **Unlisted account rejection:** passed locally. A Google OAuth Test user that
+  was absent from the application database returned to the sanitized `/login`
+  error state. The database remained at two precreated Users, two Google Account
+  relations and zero Sessions, proving that the third identity was not
+  provisioned. Google initially reused the rejected account on a retry, which
+  looked like an unresponsive login button. The provider now forces
+  `prompt=select_account`; its integration assertion and a real-browser retry both
+  confirmed that the next login opens the account chooser.
 - **Intended HTTPS host and browser cookie flow**: production HTTP behavior was
   tested locally with explicit test cookies; real TLS/cookie-browser behavior
   still needs the deployment host and Google client.
@@ -247,7 +252,7 @@ are complete. Independent review reports no code merge blocker; PR #2 is ready
 to proceed through review.** Check the PR for the current HEAD's checks and formal
 GitHub review state; the review supplied in this conversation does not itself
 create a GitHub approval. The real Google Admin and Editor consent/callback gates,
-including live Editor role downgrade and deactivation, have passed locally. A
-real unlisted-account rejection and intended HTTPS browser acceptance remain open
-for the agreed pre-merge/deployment sequence. The branch has been pushed and PR
-#2 opened; no merge or deployment has occurred, and Phase 2B has not started.
+live Editor role downgrade/deactivation, and real unlisted-account rejection have
+passed locally. Intended HTTPS browser acceptance remains open for the agreed
+pre-merge/deployment sequence. The branch has been pushed and PR #2 opened; no
+merge or deployment has occurred, and Phase 2B has not started.

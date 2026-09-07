@@ -64,6 +64,7 @@ async function beginSignIn(extra: Record<string, unknown> = {}) {
   const payload = await response.json();
   const authorization = new URL(payload.url);
   expect(authorization.origin).toBe("https://accounts.google.com");
+  expect(authorization.searchParams.get("prompt")).toBe("select_account");
   expect(authorization.searchParams.get("redirect_uri")).toBe(`${baseURL}/api/auth/callback/google`);
   expect(authorization.searchParams.get("code_challenge_method")).toBe("S256");
   const state = authorization.searchParams.get("state");

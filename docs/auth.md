@@ -69,6 +69,9 @@ configuration exit nonzero, with no connection string, SQL or stack in CLI outpu
   `email_verified: true` claim and an exact active database email match. The
   linked Google subject must resolve to that same precreated UUID, including
   returning logins. No email suffix rule, automatic registration or role mapping.
+- Google authorization always uses `prompt=select_account`. After an unlisted
+  account is rejected, the next click therefore shows the account chooser instead
+  of silently reusing the rejected Google session and returning to the same error.
 - Implicit linking to an initially unverified local row is explicitly enabled
   through `requireLocalEmailVerified: false`. This is safe only together with
   closed provisioning and the fresh verified-email/UUID gates. In 1.7.3 the
@@ -137,15 +140,17 @@ and the existing UUID, verified email and Google Account relation were confirmed
 With the Editor's Session preserved, changing its database role to Viewer caused
 the next `/admin` request to return 403; restoring Editor restored access, and
 setting the account inactive caused the next request to return 403 again. The
-account was restored to active Editor before logout. No credential or
-authorization-code value is included in committed files or PR content. This does
-not verify HTTPS cookie behavior or production-origin callback configuration.
-Before deployment, reject a real unlisted Google account and confirm callback
+account was restored to active Editor before logout. A real Google Test user that
+was absent from the application database was rejected at `/login`; database
+verification found no added User, Account or Session. A follow-up login displayed
+the Google account chooser. No credential or authorization-code value is included
+in committed files or PR content. This does not verify HTTPS cookie behavior or
+production-origin callback configuration. Before deployment, confirm callback
 origin and secure cookies on the intended HTTPS host. Phase 2B needs separate
 authorization after 2A review. The Phase 2A branch was pushed and PR #2 opened
 with authorization; no merge, deployment or repository settings change has
-occurred. Keep the remaining manual checks open for the agreed pre-merge/
-deployment sequence.
+occurred. Keep the remaining HTTPS check open for the agreed pre-merge/deployment
+sequence.
 
 ## Review follow-ups
 
