@@ -2,6 +2,37 @@
 
 ## 2026-09-07
 
+### Phase 2A - real Google Admin localhost acceptance
+
+- The user supplied real Google client credentials only through ignored local
+  `.env`; no credential value was printed, committed or pushed. The configured
+  `BETTER_AUTH_SECRET` was present and 64 characters long. Existing Docker was
+  unavailable locally, so a new persistent PostgreSQL 17 cluster was initialized
+  under `%LOCALAPPDATA%\NCKU-RAG\oauth-acceptance-pg`, loopback-only on 5433.
+  Its `kb_platform` database was empty, both migrations deployed successfully,
+  schema status was current, and Prisma Client was regenerated. It is deliberately
+  separate from the disposable 55433 integration cluster and was left running for
+  local acceptance reuse.
+- The user explicitly supplied the first Admin's actual Google identity. Bootstrap
+  created it once; read-only verification confirmed a UUID, Admin role, active
+  state and initially unverified email. The user's normal browser completed the
+  Google authorization-code consent/callback flow at `http://localhost:3000`.
+  Callback reached `/admin` (200), and safe read-only checks confirmed the same
+  UUID, fresh verified email, Google Account relation and one database Session.
+  No authorization code, provider subject, cookie or token was included in the
+  documentation, commits or PR content.
+- Browser reload of `/admin` returned 200. User logout returned to `/login`;
+  database verification then found zero Sessions for the Admin while preserving
+  the verified email and Google Account relation. The Next.js dev server started
+  for this test was stopped after verification. The persistent acceptance
+  PostgreSQL server remains running; it can be stopped later with its own
+  `pg_ctl stop` command and must not be confused with the disposable test runner.
+- This passes one real allowed Admin localhost OAuth path. It does not claim an
+  allowed Editor, unlisted account, live role-change browser flow, HTTPS secure
+  cookie behavior or production redirect origin. Those remain manual acceptance
+  checks. No application, migration, package, repository setting, merge or
+  deployment change occurred in this record.
+
 ### Phase 2A - hosted acceptance and independent review follow-up
 
 - After initial local acceptance, the user authorized steps 3–5: pushed

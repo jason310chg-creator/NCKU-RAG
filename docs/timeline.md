@@ -55,9 +55,12 @@ opened against master. [Hosted CI run 34071337902](https://github.com/jason310ch
 passed on `ed2cd8231acd22127e40ee2a814895afdbde5ad2`, including all 79 real Docker
 PostgreSQL integration tests on Ubuntu. The user's independent review reports
 no code merge blocker. The current PR HEAD's checks/review state are tracked on
-the PR. Real Google consent/callback and intended HTTPS/browser behavior remain
-manual gates in the agreed pre-merge/deployment sequence. No merge, deployment,
-settings change or Phase 2B implementation has occurred.
+the PR. A real allowed Admin completed the local Google consent/callback,
+reload and logout flow; UUID, verified email, Account relation and session
+revocation were checked against its persistent local acceptance database. An
+allowed Editor, unlisted account, live RBAC-browser cases and intended
+HTTPS/browser behavior remain manual gates. No merge, deployment, settings
+change or Phase 2B implementation has occurred.
 
 - [x] CI workflow created: clean install, generated Prisma client, unit/SQL tests, typecheck, lint, build
 - [x] Better Auth Google-only login linked to existing UUID User records
@@ -71,7 +74,8 @@ settings change or Phase 2B implementation has occurred.
 - [x] Hosted GitHub Actions, including Docker PostgreSQL integration, passed
 - [x] Independent review supplied; no merge-blocking code finding
 - [ ] Complete formal GitHub review/merge process after manual acceptance
-- [ ] Real Google consent/callback and HTTPS browser acceptance before deployment
+- [x] Real allowed Admin Google localhost consent/callback, reload and logout
+- [ ] Real allowed Editor/unlisted-account/live-RBAC browser checks and HTTPS acceptance
 
 ### Phase 2B - Document management APIs, versions and audit
 

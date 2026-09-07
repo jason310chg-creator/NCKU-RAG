@@ -130,15 +130,20 @@ Docker startup, migrations, 79 SQL integration tests, types, lint and build.
 The Docker test path is therefore verified on that runner, while this Windows
 VM still lacks the virtualization needed for local Docker.
 
-**Required manual acceptance before deployment (not verified by the automated
-suite):** use the real Google client/consent screen to sign in an allowed Editor
-and Admin; reject an unlisted account; confirm callback origin and secure
-cookie behavior on the intended HTTPS host; verify reload, logout, and denied
-access after live role downgrade/deactivation. Genuine Google consent/callback
-has not been claimed as passed. Phase 2B needs separate authorization after 2A
-review. The Phase 2A branch was pushed and PR #2 opened with authorization; no
-merge, deployment or repository settings change has occurred. Keep the manual
-checks open for the agreed pre-merge/deployment sequence.
+**Manual acceptance status:** a real allowed Admin completed the local
+`http://localhost:3000` Google consent/callback flow. The callback reached
+`/admin`, reloading preserved access, logout removed the database Session, and
+the existing UUID, verified email and Google Account relation were confirmed
+without including credentials or authorization-code values in committed files or
+PR content. This does not verify HTTPS cookie
+behavior or production-origin callback configuration. Before deployment, use the
+real Google client/consent screen for an allowed Editor, reject an unlisted
+account, confirm callback origin and secure cookies on the intended HTTPS host,
+and verify denied access after live role downgrade/deactivation. Phase 2B needs
+separate authorization after 2A review. The Phase 2A branch was pushed and PR #2
+opened with authorization; no merge, deployment or repository settings change
+has occurred. Keep the remaining manual checks open for the agreed pre-merge/
+deployment sequence.
 
 ## Review follow-ups
 

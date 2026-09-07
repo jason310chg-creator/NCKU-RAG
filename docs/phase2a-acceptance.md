@@ -186,13 +186,24 @@ the original 42-file inventory, package pins and the 19 audit findings. It found
 no merge-blocking code issue and requested correction of these remote-status
 facts. Non-blocking hardening observations are tracked in [auth operations](auth.md#review-follow-ups).
 
-## 7. Unexecuted acceptance
+## 7. Manual acceptance status
 
-- **Real Google consent/callback**: no real OAuth client credentials or intended
-  Google identity were supplied. This is a required manual pre-deployment check;
-  the signed-token fixture tests do not claim it passed. No persistent real Admin
-  was provisioned without that identity; the bootstrap CLI was exercised using
-  isolated fixtures, including idempotency, concurrency and negative paths.
+- **Real Google Admin localhost callback:** passed after the original automated
+  acceptance. A user-provisioned local `.env`, a new persistent PostgreSQL 17
+  acceptance cluster, and the explicit first-Admin bootstrap were used. A real
+  Google sign-in returned to `/admin` with HTTP 200. Read-only database checks
+  confirmed the existing UUID was retained, the fresh email became verified, the
+  Google Account relation and one database Session pointed to that same User, and
+  no token, cookie, subject or authorization code was included in this report, a
+  committed file or PR content. Reload of
+  `/admin` returned 200; browser logout returned to `/login`, and the database
+  Session count became zero while the Account relation and verified email remained.
+  This verifies one allowed Admin through the real consent/callback path at
+  `http://localhost:3000`, not the intended production HTTPS host.
+- **Additional allowlist paths:** an allowed Editor, an unlisted Google account,
+  and a live role-demotion/deactivation browser exercise remain manual checks.
+  Their signed-token, real SQL and production-HTTP tests passed, but those do not
+  replace the remaining real-account browser cases.
 - **Intended HTTPS host and browser cookie flow**: production HTTP behavior was
   tested locally with explicit test cookies; real TLS/cookie-browser behavior
   still needs the deployment host and Google client.
@@ -228,7 +239,8 @@ development/production database. See [setup and acceptance steps](auth.md).
 are complete. Independent review reports no code merge blocker; PR #2 is ready
 to proceed through review.** Check the PR for the current HEAD's checks and formal
 GitHub review state; the review supplied in this conversation does not itself
-create a GitHub approval. Genuine Google consent/callback and intended HTTPS
-browser acceptance remain the two unexecuted manual gates. Keep them open for
-the agreed pre-merge/deployment sequence. The branch has been pushed and PR #2
-opened; no merge or deployment has occurred, and Phase 2B has not started.
+create a GitHub approval. The real Google Admin consent/callback gate has passed
+locally. Allowed Editor, unlisted-account and live RBAC browser cases, plus
+intended HTTPS browser acceptance, remain open for the agreed pre-merge/
+deployment sequence. The branch has been pushed and PR #2 opened; no merge or
+deployment has occurred, and Phase 2B has not started.
