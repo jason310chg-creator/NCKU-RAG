@@ -57,10 +57,12 @@ PostgreSQL integration tests on Ubuntu. The user's independent review reports
 no code merge blocker. The current PR HEAD's checks/review state are tracked on
 the PR. A real allowed Admin completed the local Google consent/callback,
 reload and logout flow; UUID, verified email, Account relation and session
-revocation were checked against its persistent local acceptance database. An
-allowed Editor, unlisted account, live RBAC-browser cases and intended
-HTTPS/browser behavior remain manual gates. No merge, deployment, settings
-change or Phase 2B implementation has occurred.
+revocation were checked against its persistent local acceptance database. A real
+allowed Editor also completed callback, reload and logout. The same browser
+Session was denied on the next request after both a role downgrade and account
+deactivation, and access returned after restoration. A real unlisted account and
+intended HTTPS/browser behavior remain manual gates. No merge, deployment,
+settings change or Phase 2B implementation has occurred.
 
 - [x] CI workflow created: clean install, generated Prisma client, unit/SQL tests, typecheck, lint, build
 - [x] Better Auth Google-only login linked to existing UUID User records
@@ -75,7 +77,9 @@ change or Phase 2B implementation has occurred.
 - [x] Independent review supplied; no merge-blocking code finding
 - [ ] Complete formal GitHub review/merge process after manual acceptance
 - [x] Real allowed Admin Google localhost consent/callback, reload and logout
-- [ ] Real allowed Editor/unlisted-account/live-RBAC browser checks and HTTPS acceptance
+- [x] Real allowed Editor Google localhost consent/callback, reload and logout
+- [x] Live Editor role-downgrade and deactivation browser checks
+- [ ] Real unlisted-account rejection and HTTPS acceptance
 
 ### Phase 2B - Document management APIs, versions and audit
 

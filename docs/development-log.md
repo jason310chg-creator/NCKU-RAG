@@ -2,6 +2,30 @@
 
 ## 2026-09-07
 
+### Phase 2A - real Google Editor and live RBAC localhost acceptance
+
+- Because the bootstrap CLI is intentionally limited to the first Admin, a
+  controlled local acceptance operation created one otherwise-absent active
+  Editor in the isolated PostgreSQL cluster. It did not overwrite an existing
+  user. Before sign-in the row had a UUID and unverified email, with no Google
+  Account relation or Session.
+- The real Editor Google callback reached `/admin` and the rendered page showed
+  the expected Editor identity. Database checks confirmed the original UUID,
+  fresh verified email, Google Account relation and one seven-day database
+  Session. No credential, authorization-code, provider-subject, cookie or token
+  value is included in documentation, commits or PR content.
+- Keeping the same Session, changing the database role from Editor to Viewer made
+  the next `/admin` reload return 403. Restoring Editor made the next reload
+  succeed. Setting `is_active` false then made the next reload return 403. The
+  account was restored to active Editor, and browser logout removed its Session
+  while retaining the verified email and Google Account relation. The Next.js
+  dev server was stopped; the persistent acceptance PostgreSQL server remains
+  running for the remaining browser checks.
+- This passes the real allowed Editor callback and live role-change/deactivation
+  browser gates. A real unlisted-account rejection and intended HTTPS secure
+  cookie/production-origin callback remain manual checks. No application,
+  migration, package, repository setting, merge or deployment change occurred.
+
 ### Phase 2A - real Google Admin localhost acceptance
 
 - The user supplied real Google client credentials only through ignored local

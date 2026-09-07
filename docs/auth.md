@@ -130,19 +130,21 @@ Docker startup, migrations, 79 SQL integration tests, types, lint and build.
 The Docker test path is therefore verified on that runner, while this Windows
 VM still lacks the virtualization needed for local Docker.
 
-**Manual acceptance status:** a real allowed Admin completed the local
-`http://localhost:3000` Google consent/callback flow. The callback reached
-`/admin`, reloading preserved access, logout removed the database Session, and
-the existing UUID, verified email and Google Account relation were confirmed
-without including credentials or authorization-code values in committed files or
-PR content. This does not verify HTTPS cookie
-behavior or production-origin callback configuration. Before deployment, use the
-real Google client/consent screen for an allowed Editor, reject an unlisted
-account, confirm callback origin and secure cookies on the intended HTTPS host,
-and verify denied access after live role downgrade/deactivation. Phase 2B needs
-separate authorization after 2A review. The Phase 2A branch was pushed and PR #2
-opened with authorization; no merge, deployment or repository settings change
-has occurred. Keep the remaining manual checks open for the agreed pre-merge/
+**Manual acceptance status:** real allowed Admin and Editor accounts completed
+the local `http://localhost:3000` Google consent/callback flow. Each callback
+reached `/admin`, reload preserved access, logout removed the database Session,
+and the existing UUID, verified email and Google Account relation were confirmed.
+With the Editor's Session preserved, changing its database role to Viewer caused
+the next `/admin` request to return 403; restoring Editor restored access, and
+setting the account inactive caused the next request to return 403 again. The
+account was restored to active Editor before logout. No credential or
+authorization-code value is included in committed files or PR content. This does
+not verify HTTPS cookie behavior or production-origin callback configuration.
+Before deployment, reject a real unlisted Google account and confirm callback
+origin and secure cookies on the intended HTTPS host. Phase 2B needs separate
+authorization after 2A review. The Phase 2A branch was pushed and PR #2 opened
+with authorization; no merge, deployment or repository settings change has
+occurred. Keep the remaining manual checks open for the agreed pre-merge/
 deployment sequence.
 
 ## Review follow-ups

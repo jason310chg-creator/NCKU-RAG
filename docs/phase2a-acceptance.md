@@ -200,10 +200,17 @@ facts. Non-blocking hardening observations are tracked in [auth operations](auth
   Session count became zero while the Account relation and verified email remained.
   This verifies one allowed Admin through the real consent/callback path at
   `http://localhost:3000`, not the intended production HTTPS host.
-- **Additional allowlist paths:** an allowed Editor, an unlisted Google account,
-  and a live role-demotion/deactivation browser exercise remain manual checks.
-  Their signed-token, real SQL and production-HTTP tests passed, but those do not
-  replace the remaining real-account browser cases.
+- **Real Google Editor and live RBAC:** passed locally. A precreated active Editor
+  completed the real Google callback, retained its UUID, received a verified
+  email and Google Account relation, and entered `/admin` with one database
+  Session. With that Session unchanged, a database role downgrade to Viewer made
+  the next `/admin` request return 403. Restoring Editor restored access; setting
+  the account inactive made the next request return 403 again. The account was
+  restored to active Editor, logout removed its Session, and its verified email
+  and Google relation remained.
+- **Unlisted account rejection:** the automated signed-token, real SQL and
+  production-HTTP rejection cases passed. A real unlisted Google account remains
+  a manual browser check.
 - **Intended HTTPS host and browser cookie flow**: production HTTP behavior was
   tested locally with explicit test cookies; real TLS/cookie-browser behavior
   still needs the deployment host and Google client.
@@ -239,8 +246,8 @@ development/production database. See [setup and acceptance steps](auth.md).
 are complete. Independent review reports no code merge blocker; PR #2 is ready
 to proceed through review.** Check the PR for the current HEAD's checks and formal
 GitHub review state; the review supplied in this conversation does not itself
-create a GitHub approval. The real Google Admin consent/callback gate has passed
-locally. Allowed Editor, unlisted-account and live RBAC browser cases, plus
-intended HTTPS browser acceptance, remain open for the agreed pre-merge/
-deployment sequence. The branch has been pushed and PR #2 opened; no merge or
-deployment has occurred, and Phase 2B has not started.
+create a GitHub approval. The real Google Admin and Editor consent/callback gates,
+including live Editor role downgrade and deactivation, have passed locally. A
+real unlisted-account rejection and intended HTTPS browser acceptance remain open
+for the agreed pre-merge/deployment sequence. The branch has been pushed and PR
+#2 opened; no merge or deployment has occurred, and Phase 2B has not started.
