@@ -54,7 +54,10 @@ configuration exit nonzero, with no connection string, SQL or stack in CLI outpu
   column is adapter compatibility only; no password endpoint is reachable.
 - Existing emails are normalized, never merged. A canonical-email collision
   aborts the whole migration. Resolve competing identities explicitly before
-  retrying. New and migrated users default to inactive, preventing historical
+  retrying. Malformed legacy emails also abort and roll back the migration: the
+  canonical check rejects internal whitespace and values without exactly one
+  `@` separating nonempty local/domain parts. Resolve those records explicitly.
+  New and migrated users default to inactive, preventing historical
   content owners from becoming an implicit login allowlist. Existing inactive
   Admins require an explicit operator decision; bootstrap does not override them.
   The SQL migration explicitly matches JavaScript's trim whitespace set.
@@ -78,6 +81,12 @@ configuration exit nonzero, with no connection string, SQL or stack in CLI outpu
   active state on every protected call, so demotion/deactivation takes effect on
   the next request. OAuth claims, client fields and session role snapshots do
   not authorize a request. HTTPS enables Better Auth's secure cookies.
+  The pinned library currently supplies the session defaults: seven-day expiry
+  and one-day update age. Server DAL/session-wrapper reads force
+  `disableRefresh: true`, so activity limited to those reads does not extend a
+  session. The exposed HTTP `GET /api/auth/get-session` reaches the raw library
+  handler and can refresh an eligible session; this is not a guaranteed absolute
+  seven-day lifetime. Explicit expiry/refresh policy remains a review follow-up.
 - Better Auth encrypts stored OAuth access/refresh tokens using the auth secret.
   Its adapter also stores the ID token and database session token; restrict DB
   access and backups as credential-bearing data. No tokens are placed in client
@@ -114,7 +123,12 @@ concurrent provisioning. Existing anonymous Phase 1 regressions run unchanged.
 GitHub Actions uses clean `npm ci`, explicit Prisma generation, unit tests,
 Docker PostgreSQL integration, typecheck, lint and build. It requires no OAuth
 secrets. A local native PostgreSQL pass does not certify the Docker or hosted
-GitHub Actions environment.
+GitHub Actions environment on its own. The subsequent authorized
+[hosted run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+passed for `ed2cd8231acd22127e40ee2a814895afdbde5ad2` on `ubuntu-24.04`, including
+Docker startup, migrations, 79 SQL integration tests, types, lint and build.
+The Docker test path is therefore verified on that runner, while this Windows
+VM still lacks the virtualization needed for local Docker.
 
 **Required manual acceptance before deployment (not verified by the automated
 suite):** use the real Google client/consent screen to sign in an allowed Editor
@@ -122,4 +136,37 @@ and Admin; reject an unlisted account; confirm callback origin and secure
 cookie behavior on the intended HTTPS host; verify reload, logout, and denied
 access after live role downgrade/deactivation. Genuine Google consent/callback
 has not been claimed as passed. Phase 2B needs separate authorization after 2A
-review; this task does not push, merge, deploy or alter repository settings.
+review. The Phase 2A branch was pushed and PR #2 opened with authorization; no
+merge, deployment or repository settings change has occurred. Keep the manual
+checks open for the agreed pre-merge/deployment sequence.
+
+## Review follow-ups
+
+The independent Phase 2A review reported no merge-blocking code finding. This
+documentation update records these hardening opportunities; it does not claim
+the corresponding runtime changes have been implemented:
+
+- **Diagnostics:** logs currently contain only static error text. Add a request
+  ID and a bounded, allowlisted error name/code classification to distinguish
+  failure categories without logging messages, arbitrary arguments, tokens,
+  secrets or authorization codes. Verify which provider failures the library
+  actually exposes before promising a diagnostic category.
+- **Session policy:** choose and explicitly configure expiry/update age and
+  whether renewal is permitted on each read path. Preserve fresh role/active
+  checks independently of renewal. Current behavior is described above.
+- **Prisma errors:** the request failure flag currently catches every Prisma
+  exception. Assess known constraint errors the library can safely recover from
+  while preserving 500 for unexpected failures. A concurrent callback/P2002
+  turning into a spurious 500 is a review hypothesis, not a reproduced test.
+- **Error response headers:** replacing library responses at status >=400 drops
+  their headers, including any cookie clearing and rate-limit delay. HTTP 429 is
+  retained numerically but uses the generic authentication error code. Pinned
+  Better Auth emits `X-Retry-After`; preserve intentional safe headers and define
+  standard `Retry-After` behavior when improving this boundary.
+- **Rate limiting:** the production library default is an in-memory, per-process
+  limiter, not a shared multi-instance limit. Plan explicit policy and shared
+  enforcement for the intended public deployment topology.
+
+Migration malformed-email handling and per-page DAL requirements are now
+documented here and in `AGENTS.md`. Keep the exact Better Auth 1.7.3 pin; its
+reviewed behavior must be retested before any upgrade.

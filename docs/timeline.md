@@ -50,9 +50,14 @@ on `feat/phase-2a-auth-foundation`, based on merged master
 remaining code blocker after the Unicode trim and safe error-boundary fixes.
 163 Vitest tests, 9 runner safety tests, 79 real PostgreSQL tests and 13
 production HTTP checks passed; clean install/generate/typecheck/lint/build passed.
-Hosted CI and maintainer review remain pending. Real Google consent/callback
-and intended HTTPS/browser behavior are required manual checks before deployment.
-Work stops here: no push, merge, deployment, settings change or Phase 2B work.
+The branch was pushed and [PR #2](https://github.com/jason310chg-creator/NCKU-RAG/pull/2)
+opened against master. [Hosted CI run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+passed on `ed2cd8231acd22127e40ee2a814895afdbde5ad2`, including all 79 real Docker
+PostgreSQL integration tests on Ubuntu. The user's independent review reports
+no code merge blocker. The current PR HEAD's checks/review state are tracked on
+the PR. Real Google consent/callback and intended HTTPS/browser behavior remain
+manual gates in the agreed pre-merge/deployment sequence. No merge, deployment,
+settings change or Phase 2B implementation has occurred.
 
 - [x] CI workflow created: clean install, generated Prisma client, unit/SQL tests, typecheck, lint, build
 - [x] Better Auth Google-only login linked to existing UUID User records
@@ -62,7 +67,10 @@ Work stops here: no push, merge, deployment, settings change or Phase 2B work.
 - [x] Idempotent, explicit first-admin bootstrap without passwords
 - [x] Minimal `/login`, `/admin` and logout flow
 - [x] Security tests and operational documentation, including manual Google acceptance checklist
-- [ ] Hosted GitHub Actions run and maintainer review (requires separately authorized remote work)
+- [x] Push branch and open PR #2 against master
+- [x] Hosted GitHub Actions, including Docker PostgreSQL integration, passed
+- [x] Independent review supplied; no merge-blocking code finding
+- [ ] Complete formal GitHub review/merge process after manual acceptance
 - [ ] Real Google consent/callback and HTTPS browser acceptance before deployment
 
 ### Phase 2B - Document management APIs, versions and audit

@@ -6,18 +6,26 @@
 - Base/master: `2cf9d027fdc163a8bf7a198cbbe621e6aa921999` (merged Phase 1 PR #1).
 - Tested implementation commit: `4bee8d6eb1f4ebfef08ec32857d7463723816674` —
   `feat: add Phase 2A Google auth, UUID allowlist and RBAC`.
-- This report is a subsequent documentation-only commit. Resolve the final
-  delivery HEAD with `git rev-parse HEAD`; its literal SHA is in the final handoff.
-- Both commits are local. No push, PR creation, merge, deployment or repository
-  settings change occurred during Phase 2A. The working tree was clean before work.
+- Initial acceptance documentation commit:
+  `ed2cd8231acd22127e40ee2a814895afdbde5ad2`. Both implementation and acceptance
+  commits were pushed to `origin/feat/phase-2a-auth-foundation` with authorization.
+- [PR #2](https://github.com/jason310chg-creator/NCKU-RAG/pull/2) was opened as a
+  draft against `master`. Hosted CI passed on the initial acceptance commit;
+  subsequent documentation updates do not change the tested application code.
+  Use `git rev-parse HEAD` for the current checkout and the PR's Checks tab for
+  the current remote HEAD; the run recorded below is tied to its explicit SHA.
+- No merge, deployment or repository settings change has occurred. The working
+  tree was clean before implementation and before this review follow-up.
 
 ## 2. Changed files
 
-42 files relative to the base, including this report:
+43 files relative to the base, including this report and the review follow-up
+to `AGENTS.md`. The initial acceptance commit had 42 changed files.
 
 ```text
 .env.example
 .github/workflows/ci.yml
+AGENTS.md
 README.md
 docs/agent-handoff.md
 docs/api.md
@@ -72,6 +80,8 @@ uniqueness, UUID foreign keys, cascades and indexes are explicit.
 
 Email normalization keeps plus tags and dots. Explicit ECMAScript whitespace
 matches JavaScript trim; collision failures roll back all migration changes.
+Malformed legacy emails, including internal whitespace or values without exactly
+one nonempty local/domain pair around `@`, also abort and roll back the migration.
 Existing and new users default to inactive; a historical content owner gains no
 implicit login access. Real SQL tests verify populated upgrades and rollback.
 See [operational assumptions](auth.md#identity-and-database-guarantees) for legacy
@@ -125,7 +135,7 @@ production server and cleans up. It is not part of the hosted CI workflow.
 
 ## 6. Results and evidence
 
-Environment: Windows, Node **24.19.0**, npm **11.17.0**, Prisma **7.8.0**,
+Local environment: Windows, Node **24.19.0**, npm **11.17.0**, Prisma **7.8.0**,
 Next **16.2.6**, native PostgreSQL **17.11**. Clean install added 567 packages;
 Prisma generation was explicit and succeeded without a precommitted client.
 
@@ -161,21 +171,31 @@ separate fresh cluster and synthetic signed session cookies; both app processes
 and the cluster were stopped. Independent code review found no remaining code
 blockers after the Unicode whitespace and exception-sanitization fixes.
 
+**Hosted acceptance:** [GitHub Actions run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+passed for HEAD `ed2cd8231acd22127e40ee2a814895afdbde5ad2` on 2026-09-07.
+The job took 1m01s on `ubuntu-24.04`. Clean install, Prisma generation,
+163 unit tests / 15 files, 9 runner safety checks, and **79 real Docker PostgreSQL
+integration tests / 4 files** passed, followed by typecheck, lint and production
+build. Docker PostgreSQL started, both migrations deployed, and schema status
+was up to date. This proves the Docker test path on the hosted runner; the local
+Windows VM still lacks nested virtualization. It does not prove real Google
+consent or production HTTPS browser behavior.
+
+The user's independent review also reproduced unit/safety tests, types, lint,
+the original 42-file inventory, package pins and the 19 audit findings. It found
+no merge-blocking code issue and requested correction of these remote-status
+facts. Non-blocking hardening observations are tracked in [auth operations](auth.md#review-follow-ups).
+
 ## 7. Unexecuted acceptance
 
 - **Real Google consent/callback**: no real OAuth client credentials or intended
   Google identity were supplied. This is a required manual pre-deployment check;
-  the signed-token fixture tests do not claim it passed.
+  the signed-token fixture tests do not claim it passed. No persistent real Admin
+  was provisioned without that identity; the bootstrap CLI was exercised using
+  isolated fixtures, including idempotency, concurrency and negative paths.
 - **Intended HTTPS host and browser cookie flow**: production HTTP behavior was
   tested locally with explicit test cookies; real TLS/cookie-browser behavior
   still needs the deployment host and Google client.
-- **Hosted GitHub Actions / Docker execution**: workflow created but no branch
-  push/remote run is authorized. This VM cannot run Docker's Linux engine because
-  nested virtualization is unavailable. Native PostgreSQL tests verify SQL,
-  not the hosted runner or Docker lifecycle in production.
-- **Persistent first real Admin**: no real email/name was supplied; only isolated
-  bootstrap fixtures were created. The operational CLI and negative CLI failure
-  paths were verified without inventing a persistent account.
 
 ## 8. Security assumptions
 
@@ -186,7 +206,9 @@ blockers after the Unicode whitespace and exception-sanitization fixes.
 - Database/backup access is restricted. Better Auth encrypts access/refresh
   tokens; ID tokens and session tokens remain credential-bearing database data.
 - The linking option and Next experimental `authInterrupts` are version-sensitive;
-  retain the integration/HTTP checks for dependency upgrades.
+  keep the exact `better-auth: "1.7.3"` pin and retain the integration/HTTP checks
+  for any deliberate dependency upgrade. The pin preserves reviewed behavior;
+  closed provisioning and fresh identity checks remain required security gates.
 - Existing dependency audit findings remain **19** (15 high, 3 moderate, 1 low),
   unchanged by installation. No forced upgrades were mixed into this phase.
 
@@ -194,15 +216,19 @@ blockers after the Unicode whitespace and exception-sanitization fixes.
 
 Public Phase 1 behavior is unchanged and its 18 real SQL regressions pass.
 The main rollout risks are intentional inactive defaults, preexisting email
-collisions/non-ASCII casing, Google consent/client configuration, dependency
-upgrades affecting identity linking and framework 403 behavior, and the pending
-hosted CI environment. These are documented; no migration ran on a persistent
+collisions/malformed emails/non-ASCII casing, Google consent/client configuration,
+and dependency upgrades affecting identity linking and framework 403 behavior.
+The hosted CI/Docker environment has passed as recorded above. These risks are
+documented; no migration ran on a persistent
 development/production database. See [setup and acceptance steps](auth.md).
 
 ## 10. Merge readiness and stopping point
 
-**Phase 2A implementation and local technical acceptance are complete and ready
-for maintainer review. Formal merge-ready status is still pending hosted CI and
-maintainer approval.** Genuine Google and intended HTTPS browser acceptance are
-additional pre-deployment gates. No remote action was performed, and work stops
-after Phase 2A; Phase 2B has not started.
+**Phase 2A implementation, local technical acceptance and hosted CI acceptance
+are complete. Independent review reports no code merge blocker; PR #2 is ready
+to proceed through review.** Check the PR for the current HEAD's checks and formal
+GitHub review state; the review supplied in this conversation does not itself
+create a GitHub approval. Genuine Google consent/callback and intended HTTPS
+browser acceptance remain the two unexecuted manual gates. Keep them open for
+the agreed pre-merge/deployment sequence. The branch has been pushed and PR #2
+opened; no merge or deployment has occurred, and Phase 2B has not started.

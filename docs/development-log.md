@@ -2,7 +2,49 @@
 
 ## 2026-09-07
 
+### Phase 2A - hosted acceptance and independent review follow-up
+
+- After initial local acceptance, the user authorized steps 3–5: pushed
+  `feat/phase-2a-auth-foundation`, opened [PR #2](https://github.com/jason310chg-creator/NCKU-RAG/pull/2)
+  as a draft against `master`, and waited for hosted GitHub Actions to finish.
+  Both initial commits were published through HEAD
+  `ed2cd8231acd22127e40ee2a814895afdbde5ad2`.
+- [Run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+  succeeded on that HEAD. The Ubuntu 24.04 job took 1m01s: clean install,
+  Prisma generation, 163 unit tests / 15 files, 9 runner-safety checks, real
+  Docker PostgreSQL startup, both migrations, 79 integration tests / 4 files,
+  typecheck, lint and production build all passed. Local Docker remains
+  unavailable in this VM, but the hosted Docker test path is now proven.
+- The user independently reproduced unit/safety, types/lint, exact package pins,
+  the original 42-file diff and the 19 dependency audit findings. Their review
+  reported no merge-blocking code issue and identified stale documentation of
+  push/PR/hosted acceptance. The supplied review is not a GitHub approval event.
+- Corrected current acceptance, timeline, handoff, API, auth and scope documents;
+  the prior local-only entry below is historical and describes its earlier
+  checkpoint. Recorded the hosted run with its actual tested SHA rather than
+  attributing it to later documentation commits. Current HEAD checks live on
+  the PR. The requested review handoff is to mark PR #2 ready after this
+  documentation update is pushed and its own hosted checks pass.
+- Documented malformed legacy-email migration failures and required each future
+  protected page/handler/action/mutation to call its own DAL guard in AGENTS.md.
+  The overall diff now contains 43 files because AGENTS.md is newly changed.
+  Kept Better Auth exactly pinned to 1.7.3 and all application/migration code intact.
+- Recorded non-blocking diagnostics, session-policy, Prisma error classification,
+  response-header and shared rate-limit follow-ups in auth.md. Verified two
+  details in pinned source before documenting: DAL reads suppress session
+  renewal, but raw HTTP get-session can renew; the library's 429 header is
+  X-Retry-After and the wrapper retains numeric 429 while dropping headers.
+- Validation for this documentation-only update: check whitespace, compare the
+  changed-file inventory and confirm there is no runtime/schema/package change;
+  the pushed HEAD must complete the existing hosted CI workflow before the
+  requested Ready-for-review transition. Real Google consent/callback and
+  intended HTTPS browser acceptance remain open. No merge, deployment, settings
+  change or Phase 2B implementation is included.
+
 ### Phase 2A - Google identity foundation and local acceptance
+
+Historical checkpoint: this entry predates the authorized push/PR/hosted run
+described above; its no-remote-action statements apply only to that checkpoint.
 
 - Read the repository instructions, roadmap, log, timeline and README; read
   installed Next 16.2.6 route/page/headers/authentication/forbidden documentation

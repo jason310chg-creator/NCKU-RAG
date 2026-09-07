@@ -5,7 +5,9 @@
 > Phase 2A is Google OAuth only, exact active-email allowlist, database sessions,
 > UUID User/Role preservation, server DAL/RBAC, bootstrap and minimal UI/CI.
 > See `docs/auth.md` and `docs/timeline.md`. Stop after Phase 2A; Phase 2B–2D need
-> their own acceptance and authorization. No push, merge or deployment is authorized.
+> their own acceptance and authorization. Follow-up authorization covered pushing
+> Phase 2A, opening PR #2 and running hosted CI, which passed. No merge, deployment
+> or Phase 2B implementation has occurred; consult the PR for current review state.
 
 > Implementation note (2026-09-06): this document describes the overall product
 > roadmap, not completed functionality. The current Phase 1 scope is read-only

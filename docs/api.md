@@ -222,5 +222,7 @@ session revocation/expiry, database outage behavior, role/deactivation changes,
 first-Admin concurrency, populated migration preservation and collision rollback.
 The Google token and signing-key HTTP endpoints use deterministic test responses;
 the actual handler, token verifier, adapter, database and DAL are not mocked.
-Real Google consent/callback and hosted GitHub Actions still require their own
-acceptance; a local PostgreSQL pass does not claim either has run.
+Hosted [GitHub Actions run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+passed on `ed2cd8231acd22127e40ee2a814895afdbde5ad2`, including all 79 Docker
+PostgreSQL integration tests. Real Google consent/callback and intended HTTPS
+browser behavior remain manual acceptance; the hosted run does not simulate them.
