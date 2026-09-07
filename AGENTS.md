@@ -60,6 +60,15 @@ Use `npm.cmd` on Windows PowerShell if `npm` is blocked by execution policy.
   output.
 - Before editing Next.js 16 route, layout, API, or metadata behavior, check the
   relevant local docs under `node_modules/next/dist/docs/`.
+- Every protected admin page must call the appropriate server DAL guard itself
+  (`requireEditor()` for general admin entry, `requireAdmin()` for admin-only
+  functions). Protected Route Handlers, Server Actions and mutations need their
+  own guard too. A parent layout, Proxy, hidden UI or an earlier page check is
+  not an authorization boundary; layouts do not re-run on every navigation.
+- Keep Better Auth pinned exactly to `1.7.3` until a deliberate upgrade is
+  reviewed with the UUID linking, fresh Google identity, closed provisioning,
+  session and RBAC regression tests. Do not relax provisioning to make an
+  upgrade work or infer authority from provider/client/session role fields.
 
 ## Common Commands
 

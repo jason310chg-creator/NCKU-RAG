@@ -20,7 +20,8 @@ Status: Phase 1 technical acceptance complete on 2026-09-06 using the
 user-approved native PostgreSQL 17 mode. Integration passed, the branch was
 pushed, and independent agent code review completed with its one finding fixed
 and rechecked. [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1)
-is open for maintainer review; no merge or deployment has occurred. Docker's
+was merged into master at `2cf9d027fdc163a8bf7a198cbbe621e6aa921999` on
+2026-09-07 (Asia/Taipei). Docker's
 Linux engine remains unavailable in this VM and is not certified by native tests.
 
 - [x] Initial migration exists: `20260512175544_init` (present before this work)
@@ -41,15 +42,67 @@ Linux engine remains unavailable in this VM and is not certified by native tests
 
 ## Phase 2 - Admin Data Management
 
-Status: pending; not started during Phase 1 acceptance. When Phase 2 begins,
-start with authentication and role authorization design and tests before
-exposing administrative data or write operations.
+### Phase 2A - CI, Google OAuth, allowlist and RBAC
 
-- [ ] Build admin dashboard layout
-- [ ] Build document list page
-- [ ] Build create and edit document forms
-- [ ] Add category, tag, source, visibility, and status controls
-- [ ] Add basic role-aware access checks
+Status: implementation and local technical acceptance completed on 2026-09-07
+on `feat/phase-2a-auth-foundation`, based on merged master
+`2cf9d027fdc163a8bf7a198cbbe621e6aa921999`. Independent code review found no
+remaining code blocker after the Unicode trim and safe error-boundary fixes.
+163 Vitest tests, 9 runner safety tests, 79 real PostgreSQL tests and 13
+production HTTP checks passed; clean install/generate/typecheck/lint/build passed.
+The branch was pushed and [PR #2](https://github.com/jason310chg-creator/NCKU-RAG/pull/2)
+opened against master. [Hosted CI run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+passed on `ed2cd8231acd22127e40ee2a814895afdbde5ad2`, including all 79 real Docker
+PostgreSQL integration tests on Ubuntu. The user's independent review reports
+no code merge blocker. The current PR HEAD's checks/review state are tracked on
+the PR. A real allowed Admin completed the local Google consent/callback,
+reload and logout flow; UUID, verified email, Account relation and session
+revocation were checked against its persistent local acceptance database. A real
+allowed Editor also completed callback, reload and logout. The same browser
+Session was denied on the next request after both a role downgrade and account
+deactivation, and access returned after restoration. A real Google Test user that
+was absent from the application database was rejected without creating a User,
+Account or Session. The follow-up account chooser recovery was fixed and checked
+in a real browser. Intended HTTPS/browser behavior remains the manual gate. No
+merge, deployment, settings change or Phase 2B implementation has occurred.
+
+- [x] CI workflow created: clean install, generated Prisma client, unit/SQL tests, typecheck, lint, build
+- [x] Better Auth Google-only login linked to existing UUID User records
+- [x] Add auth schema through migration; verify fresh PostgreSQL and Phase 1 regression
+- [x] Exact normalized active-email allowlist; verified Google email required
+- [x] Central server DAL rereads active status and Role for every protected request
+- [x] Idempotent, explicit first-admin bootstrap without passwords
+- [x] Minimal `/login`, `/admin` and logout flow
+- [x] Security tests and operational documentation, including manual Google acceptance checklist
+- [x] Push branch and open PR #2 against master
+- [x] Hosted GitHub Actions, including Docker PostgreSQL integration, passed
+- [x] Independent review supplied; no merge-blocking code finding
+- [ ] Complete formal GitHub review/merge process after manual acceptance
+- [x] Real allowed Admin Google localhost consent/callback, reload and logout
+- [x] Real allowed Editor Google localhost consent/callback, reload and logout
+- [x] Live Editor role-downgrade and deactivation browser checks
+- [x] Real unlisted-account rejection without database provisioning
+- [x] Account chooser recovery after an unlisted-account rejection
+- [ ] Intended HTTPS callback and secure-cookie acceptance
+
+### Phase 2B - Document management APIs, versions and audit
+
+Status: pending; explicitly out of this request. Requires completed Phase 2A.
+Planned: draft/list/detail APIs, publish/archive transitions, expectedVersion
+and atomic version increments, user management, transactional audit, final-admin
+protection, http/https URLs and same-origin JSON mutations. No hard delete.
+
+### Phase 2C - Admin UI
+
+Status: pending. Document list/create/edit, user and audit pages; filtering,
+pagination, role/status badges, explicit save, unsaved changes, archive
+confirmation, conflict feedback and loading/empty/error states. Plain text only.
+
+### Phase 2D - Integration acceptance and hardening
+
+Status: pending. Full Admin/Editor browser lifecycle, publication/public API
+regression, transactional audit, stale-version rejection, suspension/session
+revocation, security hardening and final documentation.
 
 ## Phase 3 - Files and Search
 

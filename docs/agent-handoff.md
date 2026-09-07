@@ -59,8 +59,8 @@ with Git commits.
   PostgreSQL 17.11 cluster on 2026-09-06. The user explicitly chose native mode
   because this Windows VM cannot expose nested virtualization to Docker.
 - Docker Desktop 4.89.0 is installed per user, but reports
-  `hasNoVirtualization: true`; WSL is also absent. Docker runtime validation
-  remains unavailable; native mode validates the PostgreSQL/API contract.
+  `hasNoVirtualization: true`; WSL is also absent. Docker remains unavailable
+  locally; its PostgreSQL test path has since passed on the GitHub-hosted runner.
 - Native binaries are installed at
   `%LOCALAPPDATA%\NCKU-RAG\tools\postgresql-17.11-3\pgsql\bin`.
   Set `PG_BIN` to that absolute directory and run
@@ -70,8 +70,22 @@ with Git commits.
   independent agent code review found one Docker failure-cleanup issue, and
   the fix passed regression tests and re-review. Final checks: 58 Vitest tests,
   9 runner safety tests, 18 integration tests, typecheck, lint and build.
-  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) is open for
-  maintainer review; no merge/deployment or Phase 2 work has occurred.
+  [PR #1](https://github.com/jason310chg-creator/NCKU-RAG/pull/1) was merged into
+  master `2cf9d027fdc163a8bf7a198cbbe621e6aa921999` on 2026-09-07 Taipei time.
+- Phase 2A is implemented and locally accepted on `feat/phase-2a-auth-foundation`:
+  Google-only Better Auth 1.7.3, exact active-email allowlist, UUID auth migration,
+  database sessions, fresh DAL roles, first-Admin bootstrap, minimal UI and CI.
+  Final checks: 163 Vitest + 9 safety tests, 79 real PostgreSQL integration tests,
+  13 production HTTP checks, clean install/generate, typecheck, lint and build.
+  See `docs/auth.md` for setup, migration behavior and security assumptions.
+- The Phase 2A branch was pushed and [PR #2](https://github.com/jason310chg-creator/NCKU-RAG/pull/2)
+  opened against master. [Hosted CI run 34071337902](https://github.com/jason310chg-creator/NCKU-RAG/actions/runs/34071337902)
+  passed for `ed2cd8231acd22127e40ee2a814895afdbde5ad2`, including 79 Docker
+  PostgreSQL integration tests. Independent review supplied in the conversation
+  found no code merge blocker. Consult the PR for current HEAD checks/reviews.
+- Stop after Phase 2A: no merge, deploy, repository settings change or Phase 2B
+  implementation has occurred. Real Google consent/callback and intended HTTPS
+  browser checks remain open in the agreed pre-merge/deployment sequence.
 - Read `docs/api.md` for snake_case API names and inclusive Taipei DATE semantics.
 - Run `npm run db:generate` after installing dependencies in a fresh checkout.
 - Both integration modes use only the disposable test DB on localhost `55433`.
